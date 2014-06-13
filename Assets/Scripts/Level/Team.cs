@@ -33,6 +33,14 @@ public class Team : MonoBehaviour
 		m_teamMembers.Add(newTeamMember);
 	}
 
+	public void ExecutePlan()
+	{
+		foreach(var entity in m_teamMembers)
+		{
+			entity.ExecutePlan();
+		}
+	}
+
 	// Use this for initialization
 	void Start () {	}
 	

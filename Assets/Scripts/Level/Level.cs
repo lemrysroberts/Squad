@@ -29,6 +29,9 @@ public class Level : MonoBehaviour
 		}
 
 		transform.localScale = new Vector3(100.0f, 100.0f, 1.0f);
+		Vector3 position = transform.position;
+		position.z = 1;
+		transform.position = position;
 	}
 }
  

@@ -9,35 +9,18 @@ public class Game : MonoBehaviour
 	private Level m_level						= null;
 	private List<Team> m_teams 					= new List<Team>();
 	private List<Selectable> m_selectedObjects 	= new List<Selectable>();
+	private Entity m_clickedEntity = null;
+	private EntityAction m_currentAction = null;
 
-	void Start () {	}
+	void Start () {}
 
 	void Update () 
 	{
-		if(Input.GetMouseButtonDown(0))
+		if(Input.GetKeyDown(KeyCode.Space))
 		{
-			Debug.Log("Clicking");
-			RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-			Debug.Log(hits.Length.ToString() + " hits");
-
-			if(hits.Length > 0)
+			foreach(var team in m_teams)
 			{
-				foreach(var selectedItem in m_selectedObjects)
-				{
-					selectedItem.Deselect();
-				}
-			}
-
-			m_selectedObjects.Clear();
-
-			foreach(var hit in hits)
-			{
-				Selectable selectable = hit.collider.gameObject.GetComponent<Selectable>();
-				if(selectable != null)
-				{
-					selectable.Select();
-					m_selectedObjects.Add(selectable);
-				}
+				team.ExecutePlan();
 			}
 		}
 	}
