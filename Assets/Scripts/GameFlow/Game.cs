@@ -1,6 +1,7 @@
 ﻿// Spawns everything and controls input routing. Probably shouldn't
 
 using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 
 public class Game : MonoBehaviour 
@@ -12,7 +13,10 @@ public class Game : MonoBehaviour
 	private Entity m_clickedEntity = null;
 	private EntityAction m_currentAction = null;
 
-	void Start () {}
+	void Start () 
+	{
+		m_level = GameObject.FindObjectOfType<Level>();
+	}
 
 	void Update () 
 	{
@@ -35,10 +39,6 @@ public class Game : MonoBehaviour
 
 	private void SpawnLevel()
 	{
-		GameObject newLevelObject 		= new GameObject("level");
-		newLevelObject.transform.parent = transform;
-
-		m_level = newLevelObject.AddComponent<Level>();
 		m_level.StartLevel();
 	}
 
@@ -46,9 +46,15 @@ public class Game : MonoBehaviour
 	{
 		const int numTeams 			= 2;
 		const int numTeamMembers 	= 3;
+		const float spawnWidth 		= 10.0f;
+
+		SpawnPoint[] spawnPoints = GameObject.FindObjectsOfType<SpawnPoint>();
 		
 		for(int teamCount = 0; teamCount < numTeams; teamCount++)
 		{
+			SpawnPoint spawnPoint = spawnPoints.First(x => x.TeamID == teamCount);
+
+
 			GameObject newTeamObject 		= new GameObject("team_" + teamCount);
 			newTeamObject.transform.parent 	= m_level.transform;
 			
@@ -57,10 +63,18 @@ public class Game : MonoBehaviour
 			newTeam.InitTeam(teamCount); 
 			
 			m_teams.Add(newTeam);
+
+			Vector3 spawnStartPoint = spawnPoint != null ? spawnPoint.transform.position : Vector3.zero;
+			spawnStartPoint.x -= spawnWidth / 2.0f;
+
+			float deltaX = spawnWidth / (float)numTeamMembers;
 			
 			for(int teamMemberCount = 0; teamMemberCount < numTeamMembers; teamMemberCount++)
 			{
-				newTeam.SpawnTeamMember(new Vector2(Random.Range(0.0f, 10.0f), Random.Range(0.0f, 10.0f)));
+				Vector2 spawnPosition = (Vector2)spawnStartPoint;
+				spawnPosition.x = spawnStartPoint.x + (deltaX * teamMemberCount);
+
+				newTeam.SpawnTeamMember(spawnPosition);
 			}
 		}
 	}

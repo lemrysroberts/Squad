@@ -21,238 +21,140 @@ User locale: en-GB
 System locale: en-GB
 
 Running processes:
-nusb3mon.exe (3184)
-    path: C:\Program Files (x86)\NEC Electronics\USB 3.0 Host Controller Driver\Application\nusb3mon.exe
-    company:  NEC Electronics Corporation
-    product:  USB 3.0 Monitor
-    filedesc: USB 3.0 Monitor
-    filever:  1.0.15.0
-    prodver:  1.0.15.0
-BambooCore.exe (2440)
-    path: C:\Program Files (x86)\Bamboo Dock\BambooCore.exe
-    company:  
-    product:  BambooCore
-    filedesc: BambooDock back-end application
-    filever:  1.0.0.0
-    prodver:  1.0.0.0
-jusched.exe (1992)
-    path: C:\Program Files (x86)\Common Files\Java\Java Update\jusched.exe
-    company:  Oracle Corporation
-    product:  Java(TM) Platform SE Auto Updater
-    filedesc: Java(TM) Update Scheduler
-    filever:  2.1.9.8
-    prodver:  2.1.9.8
-iTunesHelper.exe (2308)
-    path: C:\Program Files (x86)\iTunes\iTunesHelper.exe
-    company:  Apple Inc.
-    product:  iTunes
-    filedesc: iTunesHelper
-    filever:  11.1.5.5
-    prodver:  11.1.5.5
-bamboo dock.exe (2008)
-    path: c:\program files (x86)\bamboo dock\bamboo dock\bamboo dock.exe
-    company:  
-    product:  
-    filedesc: 
-    filever:  0.0.0.0
-    prodver:  0.0.0.0
-AAM Updates Notifier.exe (5964)
-    path: C:\Program Files (x86)\Common Files\Adobe\OOBE\PDApp\UWA\AAM Updates Notifier.exe
-    company:  Adobe Systems Incorporated
-    product:  AAM Updates Notifier Application
-    filedesc: AAM Updates Notifier Application
-    filever:  6.0.335.0
-    prodver:  6.0.335.0
-SpotifyWebHelper.exe (3696)
+SpotifyWebHelper.exe (2620)
     path: C:\Users\dogstew\AppData\Roaming\Spotify\Data\SpotifyWebHelper.exe
     company:  Spotify Ltd
     product:  Spotify
     filedesc: SpotifyWebHelper
     filever:  0.9.10.14
     prodver:  0.9.10.14
-distnoted.exe (1696)
-    path: C:\Program Files (x86)\Common Files\Apple\Apple Application Support\distnoted.exe
-    company:  Apple Inc.
-    product:  distnoted
-    filedesc: distnoted
-    filever:  1.750.24.0
-    prodver:  1.750.24.0
-SyncServer.exe (8668)
-    path: C:\Program Files (x86)\Common Files\Apple\Mobile Device Support\SyncServer.exe
-    company:  Apple Inc.
-    product:  
-    filedesc: YSLoader.exe
-    filever:  17.669.22.23
-    prodver:  3.3.0.0
-MonoDevelop.exe (4680)
-    path: C:\Program Files (x86)\MonoDevelop\bin\MonoDevelop.exe
+nusb3mon.exe (3240)
+    path: C:\Program Files (x86)\NEC Electronics\USB 3.0 Host Controller Driver\Application\nusb3mon.exe
+    company:  NEC Electronics Corporation
+    product:  USB 3.0 Monitor
+    filedesc: USB 3.0 Monitor
+    filever:  1.0.15.0
+    prodver:  1.0.15.0
+BambooCore.exe (3252)
+    path: C:\Program Files (x86)\Bamboo Dock\BambooCore.exe
     company:  
-    product:  MonoDevelop
-    filedesc: MonoDevelop
-    filever:  2.6.0.0
-    prodver:  2.6.0.0
-ssh-agent.exe (5536)
-    path: C:\Users\dogstew\AppData\Local\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\bin\ssh-agent.exe
-    company:  
-    product:  
-    filedesc: 
-    filever:  0.0.0.0
-    prodver:  0.0.0.0
-Steam.exe (3004)
-    path: C:\Program Files (x86)\Steam\Steam.exe
-    company:  Valve Corporation
-    product:  Steam Client Bootstrapper
-    filedesc: Steam Client Bootstrapper
-    filever:  2.26.58.4
-    prodver:  1.0.0.1
-Skype.exe (8732)
-    path: C:\Program Files (x86)\Skype\Phone\Skype.exe
-    company:  Skype Technologies S.A.
-    product:  Skype
-    filedesc: Skype 
-    filever:  6.16.0.105
-    prodver:  6.16.0.0
-TweetDeck.exe (7008)
-    path: C:\Program Files (x86)\Twitter\TweetDeck\TweetDeck.exe
-    company:  Twitter
-    product:  TweetDeck by Twitter
-    filedesc: TweetDeck by Twitter
-    filever:  3.3.7.0
-    prodver:  3.3.7.0
-TweetDeck.exe (2692)
-    path: C:\Program Files (x86)\Twitter\TweetDeck\TweetDeck.exe
-    company:  Twitter
-    product:  TweetDeck by Twitter
-    filedesc: TweetDeck by Twitter
-    filever:  3.3.7.0
-    prodver:  3.3.7.0
-TweetDeck.exe (1600)
-    path: C:\Program Files (x86)\Twitter\TweetDeck\TweetDeck.exe
-    company:  Twitter
-    product:  TweetDeck by Twitter
-    filedesc: TweetDeck by Twitter
-    filever:  3.3.7.0
-    prodver:  3.3.7.0
-jucheck.exe (7056)
-    path: C:\Program Files (x86)\Common Files\Java\Java Update\jucheck.exe
-    company:  Oracle Corporation
-    product:  Java(TM) Platform SE Auto Updater
-    filedesc: Java(TM) Update Checker
-    filever:  2.1.9.8
-    prodver:  2.1.9.8
-chrome.exe (5752)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (7288)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (7092)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (5136)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (2844)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-foobar2000.exe (6308)
-    path: C:\Program Files (x86)\foobar2000\foobar2000.exe
-    company:  
-    product:  foobar2000 Application
-    filedesc: foobar2000
-    filever:  1.1.5.0
-    prodver:  1.1.5.0
-COMServer2Helper.exe (5356)
-    path: C:\Program Files (x86)\foobar2000\COMServer2Helper.exe
-    company:  
-    product:  
-    filedesc: 
-    filever:  1.0.0.1
-    prodver:  1.0.0.1
-MonoDevelop.exe (5244)
-    path: C:\Program Files (x86)\MonoDevelop\bin\MonoDevelop.exe
-    company:  
-    product:  MonoDevelop
-    filedesc: MonoDevelop
-    filever:  2.6.0.0
-    prodver:  2.6.0.0
-uTorrent.exe (1584)
-    path: C:\Users\dogstew\AppData\Roaming\uTorrent\uTorrent.exe
-    company:  BitTorrent Inc.
-    product:  µTorrent
-    filedesc: µTorrent
-    filever:  3.4.1.31139
-    prodver:  3.4.1.31139
-chrome.exe (7492)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (9104)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (1676)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-chrome.exe (7100)
-    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
-    company:  Google Inc.
-    product:  Google Chrome
-    filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-DTLite.exe (6500)
-    path: C:\Program Files (x86)\DAEMON Tools Lite\DTLite.exe
-    company:  DT Soft Ltd
-    product:  DAEMON Tools Lite
-    filedesc: DAEMON Tools Lite
-    filever:  4.35.6.91
-    prodver:  4.35.6.91
-NvBackend.exe (3648)
+    product:  BambooCore
+    filedesc: BambooDock back-end application
+    filever:  1.0.0.0
+    prodver:  1.0.0.0
+NvBackend.exe (3268)
     path: C:\Program Files (x86)\NVIDIA Corporation\Update Core\NvBackend.exe
     company:  NVIDIA Corporation
     product:  NVIDIA GeForce Experience
     filedesc: NVIDIA GeForce Experience Backend
     filever:  11.10.13.1
     prodver:  11.10.13.1
-chrome.exe (8680)
+jusched.exe (3276)
+    path: C:\Program Files (x86)\Common Files\Java\Java Update\jusched.exe
+    company:  Oracle Corporation
+    product:  Java(TM) Platform SE Auto Updater
+    filedesc: Java(TM) Update Scheduler
+    filever:  2.1.9.8
+    prodver:  2.1.9.8
+iTunesHelper.exe (3296)
+    path: C:\Program Files (x86)\iTunes\iTunesHelper.exe
+    company:  Apple Inc.
+    product:  iTunes
+    filedesc: iTunesHelper
+    filever:  11.1.5.5
+    prodver:  11.1.5.5
+jucheck.exe (6136)
+    path: C:\Program Files (x86)\Common Files\Java\Java Update\jucheck.exe
+    company:  Oracle Corporation
+    product:  Java(TM) Platform SE Auto Updater
+    filedesc: Java(TM) Update Checker
+    filever:  2.1.9.8
+    prodver:  2.1.9.8
+MonoDevelop.exe (3336)
+    path: C:\Program Files (x86)\MonoDevelop\bin\MonoDevelop.exe
+    company:  
+    product:  MonoDevelop
+    filedesc: MonoDevelop
+    filever:  2.6.0.0
+    prodver:  2.6.0.0
+Skype.exe (5104)
+    path: C:\Program Files (x86)\Skype\Phone\Skype.exe
+    company:  Skype Technologies S.A.
+    product:  Skype
+    filedesc: Skype 
+    filever:  6.16.0.105
+    prodver:  6.16.0.0
+Steam.exe (5860)
+    path: C:\Program Files (x86)\Steam\Steam.exe
+    company:  Valve Corporation
+    product:  Steam Client Bootstrapper
+    filedesc: Steam Client Bootstrapper
+    filever:  2.27.14.88
+    prodver:  1.0.0.1
+chrome.exe (5560)
     path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
     company:  Google Inc.
     product:  Google Chrome
     filedesc: Google Chrome
-    filever:  35.0.1916.114
-    prodver:  35.0.1916.114
-UnityBugReporter.exe (8036)
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (8004)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (6984)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (4736)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (7804)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (7012)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (6968)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+chrome.exe (7192)
+    path: C:\Users\dogstew\AppData\Local\Google\Chrome\Application\chrome.exe
+    company:  Google Inc.
+    product:  Google Chrome
+    filedesc: Google Chrome
+    filever:  35.0.1916.153
+    prodver:  35.0.1916.153
+AAM Updates Notifier.exe (1408)
+    path: C:\Program Files (x86)\Common Files\Adobe\OOBE\PDApp\UWA\AAM Updates Notifier.exe
+    company:  Adobe Systems Incorporated
+    product:  AAM Updates Notifier Application
+    filedesc: AAM Updates Notifier Application
+    filever:  6.0.335.0
+    prodver:  6.0.335.0
+UnityBugReporter.exe (6800)
     path: C:\Program Files (x86)\Unity_free\UnityBugReporter.exe
     company:  Unity Technologies ApS
     product:  Unity Bug Reporter

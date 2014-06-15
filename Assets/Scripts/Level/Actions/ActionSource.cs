@@ -68,6 +68,7 @@ public class ActionSource : InputListener
 		}
 
 		m_action.SetOwner(this);
+		m_action.SetEntity(m_entity);
 		m_action.StartPlanning();
 
 		m_editingAction = true;
@@ -88,7 +89,7 @@ public class ActionSource : InputListener
 			{
 				m_action.EndPlanning();
 				m_action = null;
-				InputManager.Instance.SetActiveListener(null);
+				return false;
 			}
 		}
 		

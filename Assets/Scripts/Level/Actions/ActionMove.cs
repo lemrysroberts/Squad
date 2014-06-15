@@ -50,6 +50,7 @@ public class ActionMove : EntityAction
 		{
 			m_lineRenderer = null;
 			GameObject.Destroy(m_planObject);
+			if(m_endActionSource != null) 	{ GameObject.Destroy(m_endActionSource); }
 		}
 
 	}
@@ -113,8 +114,8 @@ public class ActionMove : EntityAction
 		Debug.Log("Deleting move");
 		m_waypoints.Clear();
 
-		if(m_planObject != null) { GameObject.Destroy(m_planObject); }
-		if(m_endActionSource != null) { GameObject.Destroy(m_endActionSource); }
+		if(m_planObject != null) 		{ GameObject.Destroy(m_planObject); }
+		if(m_endActionSource != null) 	{ GameObject.Destroy(m_endActionSource); }
 
 		if(m_childSource != null && m_childSource.Action != null)
 		{
@@ -142,7 +143,8 @@ public class ActionMove : EntityAction
 		GeometryFactory factory = m_endActionSource.AddComponent<GeometryFactory>();
 		Rigidbody2D rigidBody = m_endActionSource.AddComponent<Rigidbody2D>();
 		rigidBody.isKinematic = true;
-		m_endActionSource.AddComponent<BoxCollider2D>();
+		BoxCollider2D collider = m_endActionSource.AddComponent<BoxCollider2D>();
+		collider.isTrigger = true;
 		m_endActionSource.transform.position = (Vector3)m_currentHoverPoint;
 		m_endActionSource.transform.localScale = new Vector3(0.5f, 0.5f, 1.0f);
 		m_childSource = m_endActionSource.AddComponent<ActionSource>();

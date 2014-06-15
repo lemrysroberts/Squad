@@ -28,7 +28,7 @@ public class Team : MonoBehaviour
 		newTeamMemberObject.transform.position = new Vector3(location.x, location.y, -1.0f);
 
 		Entity newTeamMember 		= newTeamMemberObject.AddComponent<Entity>();
-
+		newTeamMember.SetTeamID(m_teamID);
 
 		m_teamMembers.Add(newTeamMember);
 	}

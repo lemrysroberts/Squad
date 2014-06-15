@@ -8,22 +8,35 @@ using System.Collections.Generic;
 [RequireComponent(typeof(ActionSource))]
 public class Entity : MonoBehaviour , ISelectable
 {
-	public float WeaponRange					= 5.0f;
+	public float PerceptionRange					= 5.0f;
 
-	private Rigidbody2D m_rigidBody 			= null;
-	private BoxCollider2D m_collider 			= null;
-	private Selectable m_selectable 			= null;
-	private SpriteRenderer m_spriteRenderer 	= null;
-	private ActionSource m_actionSource			= null;
+	public float focusMinAngle						= -45.0f;
+	public float focusMaxAngle						= 45.0f;
 
-	private Queue<EntityAction> m_actionQueue 	= new Queue<EntityAction>();
-	private Queue<EntityAction> m_planQueue		= new Queue<EntityAction>();
+	private Rigidbody2D m_rigidBody 				= null;
+	private BoxCollider2D m_collider 				= null;
+	private Selectable m_selectable 				= null;
+	private SpriteRenderer m_spriteRenderer 		= null;
+	private ActionSource m_actionSource				= null;
+	private Perception m_perception					= null;
 
-	private EntityAction m_currentAction		= null;
+	private Queue<EntityAction> m_actionQueue 		= new Queue<EntityAction>();
+	private Queue<EntityAction> m_planQueue			= new Queue<EntityAction>();
+
+	private EntityAction m_currentAction			= null;
+	private Weapon m_currentWeapon					= null;
+	private int m_teamID							= -1;
+
+	public Perception EntityPerception { get { return m_perception; } }
+
+	public void SetTeamID(int TeamID) 	{ m_teamID = TeamID; }
+	public int GetTeamID()	 			{ return m_teamID; }
 
 	// Use this for initialization
 	void Start () 
 	{
+		m_currentWeapon = new TestWeapon(this);
+
 		GetComponent<ActionSource>().SetEntity(this);
 
 		m_selectable = GetComponent<Selectable>();
@@ -37,10 +50,22 @@ public class Entity : MonoBehaviour , ISelectable
 		m_selectable.Target = this;
 	
 		m_rigidBody = GetComponent<Rigidbody2D>();
+		m_rigidBody.isKinematic = false;
+		m_rigidBody.gravityScale = 0;
+
 		m_collider = GetComponent<BoxCollider2D>();
-		m_actionSource = GetComponent<ActionSource>();
 		m_collider.size = new Vector2(entitySprite.bounds.size.x, entitySprite.bounds.size.y);
-		m_rigidBody.isKinematic = true;
+
+		m_actionSource = GetComponent<ActionSource>();
+
+		GameObject actionObject = new GameObject("perception");
+		actionObject.transform.parent = transform;
+		actionObject.transform.localPosition = Vector3.zero;
+		CircleCollider2D perceptionCollider = actionObject.AddComponent<CircleCollider2D>();
+		perceptionCollider.isTrigger = true;
+		perceptionCollider.radius = m_currentWeapon.Range;
+		m_perception = actionObject.AddComponent<Perception>();
+		m_perception.SetOwner(this);
 
 		renderer.material.color = Color.white;
 	}
@@ -91,6 +116,11 @@ public class Entity : MonoBehaviour , ISelectable
 
 	public void ExecutePlan()
 	{
+		if(m_actionSource == null || m_actionSource.Action == null)
+		{
+			return;
+		}
+
 		if(m_currentAction != null)
 		{
 			m_currentAction.End();
@@ -104,8 +134,6 @@ public class Entity : MonoBehaviour , ISelectable
 		{
 			m_actionQueue.Enqueue(currentSource.Action);
 			currentSource = currentSource.Action.ChildSource;
-
-
 		}
 
 		m_planQueue.Clear();
@@ -122,17 +150,25 @@ public class Entity : MonoBehaviour , ISelectable
 			mat.color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 		}
 
-		return true;
+		return true; 
 	}
 
 	public void Deselect()
 	{
 		Material mat = renderer.material;
 		
-		if(mat != null)
+		if(mat != null) 
 		{
 			mat.color = Color.white;
 		}
+	}
+
+	void OnGUI()
+	{
+		Vector2 position = Camera.main.WorldToScreenPoint(transform.position);
+		position.y += 30.0f;
+		position.x -= 20.0f;
+		
 	}
 
 	public Vector2 Position
@@ -140,4 +176,6 @@ public class Entity : MonoBehaviour , ISelectable
 		get { return (Vector2)gameObject.transform.position; }
 		set { gameObject.transform.position = new Vector3(value.x, value.y, gameObject.transform.position.z); }
 	}
+
+	public Weapon CurrentWeapon { get { return m_currentWeapon; } }
 }

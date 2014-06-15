@@ -31,7 +31,7 @@ public class InputManager : MonoBehaviour
 
 			if(Input.GetMouseButtonDown(0)) { m_activeListener.MouseButtonDown(0); }
 			else if(Input.GetMouseButtonDown(1)) { m_activeListener.MouseButtonDown(1); }
-			else if(Input.GetMouseButtonUp(0)) { m_activeListener.MouseButtonUp(0); }
+			else if(Input.GetMouseButtonUp(0)) { m_activeListener = m_activeListener.MouseButtonUp(0) ? m_activeListener : null; }
 			else if(Input.GetMouseButtonUp(1)) { m_activeListener.MouseButtonUp(1); }
 		}
 		else

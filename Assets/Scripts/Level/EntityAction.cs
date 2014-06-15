@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 public abstract class EntityAction
 {
-	protected ActionSource m_owner = null;
+	protected ActionSource m_owner 	= null;
+	protected Entity m_entity		= null;
 
-	public void SetOwner(ActionSource owner)
-	{
-		m_owner = owner;
-	}
+	public void SetOwner(ActionSource owner) { m_owner = owner; }
+	public void SetEntity(Entity entity) { m_entity = entity; }
+
+	protected Entity GetEntity() { return m_owner != null ? m_owner.GetEntity() : null; }
 
 	public abstract void Start();
 	public abstract void Update();

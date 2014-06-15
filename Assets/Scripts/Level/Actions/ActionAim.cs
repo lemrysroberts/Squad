@@ -20,6 +20,7 @@ public class ActionAim : EntityAction
 	private MeshFilter m_wedgeFilter;
  
 	private float m_startAngle 			= 0.0f;
+	private float m_endAngle 			= 0.0f;
 	private Vector2 m_currentHoverPoint = Vector2.zero;
 	private PlanProgress m_progress 	= PlanProgress.StartEdge;
 	
@@ -30,16 +31,29 @@ public class ActionAim : EntityAction
 
 	public override void Start()
 	{
+		if(m_entity.CurrentWeapon != null)
+		{
+			m_entity.CurrentWeapon.SetShotRegion(m_startAngle, m_endAngle);
 
+			m_entity.CurrentWeapon.StartFiring();
+		}
 	}
 
 	public override void Update()
 	{
-	
+		if(m_entity.CurrentWeapon != null)
+		{
+			m_entity.CurrentWeapon.UpdateFiring();
+		}
 	}
 	
 	public override void End()
 	{
+		if(m_entity.CurrentWeapon != null)
+		{
+			m_entity.CurrentWeapon.StopFiring();
+		}
+
 		if(m_startBarObject != null) { GameObject.Destroy(m_startBarObject); }
 		if(m_endBarObject != null) { GameObject.Destroy(m_endBarObject); }
 		if(m_wedgeObject != null) {GameObject.Destroy(m_wedgeObject); m_wedgeFilter = null; }
@@ -49,7 +63,7 @@ public class ActionAim : EntityAction
 	
 	public override bool IsComplete()
 	{
-		return true;
+		return false;
 	}
 	
 	public override void StartPlanning() 
@@ -107,7 +121,7 @@ public class ActionAim : EntityAction
 		m_currentHoverPoint = location;
 
 		Vector2 direction = location - ((Vector2)m_owner.transform.position);
-		m_lineRenderer.SetPosition(1, (m_owner.transform.position + ((Vector3)direction.normalized * m_owner.GetEntity().WeaponRange)));
+		m_lineRenderer.SetPosition(1, (m_owner.transform.position + ((Vector3)direction.normalized * m_owner.GetEntity().CurrentWeapon.Range)));
 
 		if(m_progress == PlanProgress.EndEdge)
 		{
@@ -116,9 +130,9 @@ public class ActionAim : EntityAction
 			int vertCount 	= subdivisions + 1;
 			int indexCount 	= 3 * (subdivisions - 1);
 
-			Vector3 currentPos = m_owner.transform.position + ((Vector3)direction.normalized * m_owner.GetEntity().WeaponRange);
+			Vector3 currentPos = m_owner.transform.position + ((Vector3)direction.normalized * m_owner.GetEntity().CurrentWeapon.Range);
 
-			float hoverAngle = Mathf.Atan2(direction.normalized.y, direction.normalized.x) * Mathf.Rad2Deg;
+			m_endAngle = Mathf.Atan2(direction.normalized.y, direction.normalized.x) * Mathf.Rad2Deg;
 
 			Vector3[] verts = new Vector3[vertCount];
 			Vector3[] normals = new Vector3[vertCount];
@@ -131,11 +145,11 @@ public class ActionAim : EntityAction
 
 			for(int i = 0; i < subdivisions; i++)
 			{
-				float newAngle = Mathf.LerpAngle(m_startAngle, hoverAngle, (1.0f / (float)(subdivisions - 1)) * (float)i); 
+						float newAngle = Mathf.LerpAngle(m_startAngle, m_endAngle, (1.0f / (float)(subdivisions - 1)) * (float)i); 
 
 				Vector3 newVector = Quaternion.Euler(0.0f, 0.0f, (newAngle)) * Vector3.right;
 
-				verts[i + 1] = (Vector3)m_owner.transform.position + (newVector * m_owner.GetEntity().WeaponRange);
+				verts[i + 1] = (Vector3)m_owner.transform.position + (newVector * m_owner.GetEntity().CurrentWeapon.Range);
 				normals[i + 1] = Vector3.back;
 				uvs[i + 1] = (Vector2)(verts[i + 1]);
 			}
@@ -182,13 +196,13 @@ public class ActionAim : EntityAction
 				m_wedgeObject = new GameObject("wedge");
 				MeshRenderer renderer = m_wedgeObject.AddComponent<MeshRenderer>();
 				m_wedgeFilter = m_wedgeObject.AddComponent<MeshFilter>();
-			Material newMaterial = Resources.Load<Material>(GameData.Data_AimMaterial);
-			renderer.material = newMaterial;
+				Material newMaterial = Resources.Load<Material>(GameData.Data_AimMaterial);
+				renderer.material = newMaterial;
 
-			GlobalTextureScroll scroll = m_wedgeObject.AddComponent<GlobalTextureScroll>();
-			scroll.TargetTexture = "_MainTex";
-			scroll.UScroll = -0.01f;
-			scroll.VScroll = -0.005f;
+				GlobalTextureScroll scroll = m_wedgeObject.AddComponent<GlobalTextureScroll>();
+				scroll.TargetTexture = "_MainTex";
+				scroll.UScroll = -0.01f;
+				scroll.VScroll = -0.005f;
 				m_wedgeFilter.mesh = m_wedgeMesh;
 
 				break;
