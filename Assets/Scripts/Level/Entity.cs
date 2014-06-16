@@ -6,6 +6,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(ActionSource))]
+[RequireComponent(typeof(EntityHealth))]
 public class Entity : MonoBehaviour , ISelectable
 {
 	public float PerceptionRange					= 5.0f;
@@ -19,6 +20,7 @@ public class Entity : MonoBehaviour , ISelectable
 	private SpriteRenderer m_spriteRenderer 		= null;
 	private ActionSource m_actionSource				= null;
 	private Perception m_perception					= null;
+	private EntityHealth m_health					= null;
 
 	private Queue<EntityAction> m_actionQueue 		= new Queue<EntityAction>();
 	private Queue<EntityAction> m_planQueue			= new Queue<EntityAction>();
@@ -27,7 +29,8 @@ public class Entity : MonoBehaviour , ISelectable
 	private Weapon m_currentWeapon					= null;
 	private int m_teamID							= -1;
 
-	public Perception EntityPerception { get { return m_perception; } }
+	public Perception EntityPerception 	{ get { return m_perception; } }
+	public EntityHealth EntityHealth 	{ get { return m_health; } }
 
 	public void SetTeamID(int TeamID) 	{ m_teamID = TeamID; }
 	public int GetTeamID()	 			{ return m_teamID; }
@@ -39,21 +42,21 @@ public class Entity : MonoBehaviour , ISelectable
 
 		GetComponent<ActionSource>().SetEntity(this);
 
-		m_selectable = GetComponent<Selectable>();
-		m_spriteRenderer = GetComponent<SpriteRenderer>();
-
-		m_actionSource = GetComponent<ActionSource>();
+		m_selectable 		= GetComponent<Selectable>();
+		m_spriteRenderer 	= GetComponent<SpriteRenderer>();
+		m_actionSource 		= GetComponent<ActionSource>();
+		m_rigidBody 		= GetComponent<Rigidbody2D>();
+		m_collider 			= GetComponent<BoxCollider2D>();
+		m_health 			= GetComponent<EntityHealth>();
 
 		Sprite entitySprite = SpriteHelper.LoadSprite("Textures/test_sprite_0");
 		m_spriteRenderer.sprite = entitySprite;
 
 		m_selectable.Target = this;
 	
-		m_rigidBody = GetComponent<Rigidbody2D>();
 		m_rigidBody.isKinematic = false;
 		m_rigidBody.gravityScale = 0;
 
-		m_collider = GetComponent<BoxCollider2D>();
 		m_collider.size = new Vector2(entitySprite.bounds.size.x, entitySprite.bounds.size.y);
 
 		m_actionSource = GetComponent<ActionSource>();
@@ -69,7 +72,7 @@ public class Entity : MonoBehaviour , ISelectable
 
 		renderer.material.color = Color.white;
 	}
-	
+
 	// Update is called once per frame
 	void Update () 
 	{
@@ -166,9 +169,10 @@ public class Entity : MonoBehaviour , ISelectable
 	void OnGUI()
 	{
 		Vector2 position = Camera.main.WorldToScreenPoint(transform.position);
-		position.y += 30.0f;
+		position.y += 60.0f;
 		position.x -= 20.0f;
-		
+
+		GUI.Label(new Rect(position.x, Screen.height - position.y, 200.0f, 50.0f), "Health: " + m_health.CurrentHealth);		
 	}
 
 	public Vector2 Position

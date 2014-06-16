@@ -9,7 +9,8 @@ struct CandidateAnglePair
 
 public class TestWeapon : Weapon 
 {
-	public int ShotsPerMinute 					= 120;
+	public float ShotDamage						= 2.0f;
+	public int ShotsPerMinute 					= 600;
 
 	private float m_timeToNextShot 				= 0.0f;
 	private float m_timeBetweenShots 			= 0.0f;
@@ -31,6 +32,8 @@ public class TestWeapon : Weapon
 
 		if(m_timeToNextShot <= 0.0f)
 		{
+			// TODO: loop this to allow for shots to be fired faster than the frame-rate.
+
 			TakeShot();
 			m_timeToNextShot = m_timeBetweenShots;
 		}
@@ -47,6 +50,8 @@ public class TestWeapon : Weapon
 
 		m_shotCandidates.Clear();
 
+
+
 		foreach(var entity in m_owner.EntityPerception.Enemies)
 		{
 			Vector2 direction = (Vector2)entity.transform.position - (Vector2)m_owner.transform.position;
@@ -61,10 +66,22 @@ public class TestWeapon : Weapon
 
 		int target = Random.Range(0, m_shotCandidates.Count);
 
-		Debug.DrawLine(m_owner.transform.position, m_shotCandidates[target].transform.position, Color.white, 0.2f);
+		Vector2 shotDirection = (m_shotCandidates[target].transform.position - m_owner.transform.position);
+
+		if(Random.Range(0, 5) != 0)
+		{
+			shotDirection = Vector3.Lerp(m_shotRegionStartDirection, m_shotRegionEndDirection, Random.value) * 10.0f;
+		}
+		else
+		{
+			m_shotCandidates[target].EntityHealth.ApplyDamage(ShotDamage, DamageType.Bullet);
+		}
+		Debug.DrawLine(m_owner.transform.position, m_owner.transform.position + (Vector3)shotDirection, Color.white, 0.2f);
+
 
 		ScreenShake.Instance.AddShake(0.2f, m_owner.transform.position);
 		//Physics2D.RaycastAll(m_owner.transform.position, 
+
 
 
 	}
