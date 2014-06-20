@@ -46,11 +46,7 @@ public class TestWeapon : Weapon
 
 	private void TakeShot()
 	{
-		Debug.Log("Taking Shot");
-
 		m_shotCandidates.Clear();
-
-
 
 		foreach(var entity in m_owner.EntityPerception.Enemies)
 		{

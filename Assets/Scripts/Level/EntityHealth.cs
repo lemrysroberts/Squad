@@ -3,13 +3,22 @@ using System.Collections;
 
 public class EntityHealth : MonoBehaviour
 {
-	public bool DamageEnabled 	= true;
-	public float StartHealth 	= 100.0f;
+	public delegate void EntityKilled();
 
-	private Entity m_owner 		= null;
-	private float m_health 		= 0.0f;
+	public bool DamageEnabled 		= true;
+	public float StartHealth 		= 100.0f;
+
+	private Entity m_owner 			= null;
+	private float m_health 			= 0.0f;
+
+	private EntityKilled m_onKill 	= null;
 
 	public float CurrentHealth { get { return m_health; } }
+
+	public void SetOnKill(EntityKilled onKilled)
+	{
+		m_onKill = onKilled;
+	}
 
 	public void Start()
 	{
@@ -22,5 +31,10 @@ public class EntityHealth : MonoBehaviour
 
 		// TODO: Add modifiers for shields, armour, etc.
 		m_health -= damageAmount;
+
+		if(m_health <= 0.0f && m_onKill != null)
+		{
+			m_onKill();
+		}
 	}
 }

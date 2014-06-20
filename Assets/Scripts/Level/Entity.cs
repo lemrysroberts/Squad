@@ -9,6 +9,12 @@ using System.Collections.Generic;
 [RequireComponent(typeof(EntityHealth))]
 public class Entity : MonoBehaviour , ISelectable
 {
+	enum EntityState
+	{
+		Alive,
+		Dead
+	}
+
 	public float PerceptionRange					= 5.0f;
 
 	public float focusMinAngle						= -45.0f;
@@ -22,12 +28,15 @@ public class Entity : MonoBehaviour , ISelectable
 	private Perception m_perception					= null;
 	private EntityHealth m_health					= null;
 
+	private GameObject m_actionSourceObject			= null;
+
 	private Queue<EntityAction> m_actionQueue 		= new Queue<EntityAction>();
 	private Queue<EntityAction> m_planQueue			= new Queue<EntityAction>();
 
 	private EntityAction m_currentAction			= null;
 	private Weapon m_currentWeapon					= null;
 	private int m_teamID							= -1;
+	private EntityState m_state						= EntityState.Alive;
 
 	public Perception EntityPerception 	{ get { return m_perception; } }
 	public EntityHealth EntityHealth 	{ get { return m_health; } }
@@ -61,14 +70,16 @@ public class Entity : MonoBehaviour , ISelectable
 
 		m_actionSource = GetComponent<ActionSource>();
 
-		GameObject actionObject = new GameObject("perception");
-		actionObject.transform.parent = transform;
-		actionObject.transform.localPosition = Vector3.zero;
-		CircleCollider2D perceptionCollider = actionObject.AddComponent<CircleCollider2D>();
+		m_actionSourceObject = new GameObject("perception");
+		m_actionSourceObject.transform.parent = transform;
+		m_actionSourceObject.transform.localPosition = Vector3.zero;
+		CircleCollider2D perceptionCollider = m_actionSourceObject.AddComponent<CircleCollider2D>();
 		perceptionCollider.isTrigger = true;
 		perceptionCollider.radius = m_currentWeapon.Range;
-		m_perception = actionObject.AddComponent<Perception>();
+		m_perception = m_actionSourceObject.AddComponent<Perception>();
 		m_perception.SetOwner(this);
+
+		m_health.SetOnKill(new EntityHealth.EntityKilled(EntityKilled));
 
 		renderer.material.color = Color.white;
 	}
@@ -76,6 +87,8 @@ public class Entity : MonoBehaviour , ISelectable
 	// Update is called once per frame
 	void Update () 
 	{
+		if(m_state != EntityState.Alive) { return; }
+
 		if(m_currentAction != null)
 		{
 			m_currentAction.Update();
@@ -119,7 +132,7 @@ public class Entity : MonoBehaviour , ISelectable
 
 	public void ExecutePlan()
 	{
-		if(m_actionSource == null || m_actionSource.Action == null)
+		if(m_actionSource == null || m_actionSource.Action == null || m_state != EntityState.Alive)
 		{
 			return;
 		}
@@ -173,6 +186,13 @@ public class Entity : MonoBehaviour , ISelectable
 		position.x -= 20.0f;
 
 		GUI.Label(new Rect(position.x, Screen.height - position.y, 200.0f, 50.0f), "Health: " + m_health.CurrentHealth);		
+	}
+
+	void EntityKilled()
+	{
+		Debug.Log("Killed");
+		m_state = EntityState.Dead;
+		m_actionSourceObject.SetActive(false);
 	}
 
 	public Vector2 Position

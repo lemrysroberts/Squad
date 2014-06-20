@@ -7,4 +7,5 @@ public class GameData
 	public static string Data_AimMaterial = "Materials/aim_wedge";
 	public static string Data_PathMaterial = "Materials/pathplan";
 	public static string Data_NodeMaterial = "Materials/node";
+	public static string Data_DebugGridMaterial = "Materials/grid";
 }
