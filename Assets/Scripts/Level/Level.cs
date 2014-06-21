@@ -9,8 +9,12 @@ public class Level : MonoBehaviour
 
 	const float m_cellSize 				= 0.2f;
 
+	private LevelGridRaycastHit m_raycastHit;
+
 	void Start () 
 	{
+		m_raycastHit = new LevelGridRaycastHit();
+
 		m_meshRenderer 	= GetComponent<MeshRenderer>();
 
 		m_grid 			= new LevelGrid(m_cellSize, m_meshRenderer.bounds.min, m_meshRenderer.bounds.max);
@@ -44,12 +48,12 @@ public class Level : MonoBehaviour
 
 	void Update()
 	{
-		if(Input.GetMouseButtonDown(0))
+		if(Input.GetMouseButton(0))
 		{
 			rayStart = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		}
 
-		if(Input.GetMouseButtonDown(1))
+		if(Input.GetMouseButton(1))
 		{
 			rayEnd = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		}
@@ -58,20 +62,19 @@ public class Level : MonoBehaviour
 		int mask = (int)LevelGrid.GridCellContents.Blocked;
 		LevelGrid.GridCell hitCell;
 
-		bool hit = m_grid.Raycast(rayStart, rayEnd, mask, out hitCell);
-	}
+		bool hit = m_grid.Raycast(rayStart, rayEnd, mask, ref m_raycastHit);
 
-	void OnGUI()
-	{
-		if(GUI.Button(new Rect(300.0f, 20.0f, 200.0f, 50.0f), "Ray test"))
+		Debug.DrawLine(rayStart, rayEnd, Color.magenta);
+
+		if(hit)
 		{
-			int mask = (int)LevelGrid.GridCellContents.Blocked;
-			LevelGrid.GridCell hitCell;
+			Vector2 hitLocation;
 
-		//	bool hit = m_grid.Raycast(mask, out hitCell);
+			m_grid.GetCellLocation(m_raycastHit.x, m_raycastHit.y, out hitLocation);
+
+			Debug.DrawLine(hitLocation, hitLocation + new Vector2(m_cellSize, m_cellSize), Color.green);
+			Debug.DrawLine(hitLocation + new Vector2(0.0f, m_cellSize), hitLocation + new Vector2(m_cellSize, 0.0f), Color.green);
 		}
-
-		int.TryParse( GUI.TextField(new Rect(600.0f, 10.0f, 60.0f, 40.0f), rayIterations.ToString()), out rayIterations);
 	}
 
 	private int rayIterations = 20;

@@ -8,6 +8,13 @@
 using UnityEngine;
 using System.Collections;
 
+public class LevelGridRaycastHit
+{
+	public int x;
+	public int y;
+	public LevelGrid.GridCell cell;
+}
+
 public partial class LevelGrid
 {
 	public enum GridCellContents
@@ -72,14 +79,9 @@ public partial class LevelGrid
 	}
 
 
-
-	public bool Raycast(Vector2 rayStart, Vector2 rayEnd, int contentsMask, out GridCell outHitCell)
+	// Bounds checking on input rays should be done outside of this method to avoid shitting it up further
+	public bool Raycast(Vector2 rayStart, Vector2 rayEnd, int contentsMask, ref LevelGridRaycastHit outHit)
 	{
-		// This is stupid, return a struct describing the hit, not the cell itself.
-		outHitCell = new GridCell();
-
-		Debug.DrawLine(rayStart, rayEnd, Color.magenta);
-
 		rayStart -= m_gridStart;
 		rayEnd -= m_gridStart;
 
@@ -92,6 +94,10 @@ public partial class LevelGrid
 		int lowY = Mathf.Max((int)(y1 / m_cellSize), 0);  
 		int highX = Mathf.Min( (int)(x2 / m_cellSize), m_numCellsX - 1);  
 		int highY = Mathf.Min( (int)(y2 / m_cellSize), m_numCellsY - 1);  
+
+		highX = Mathf.Max(highX, 0);
+		highY = Mathf.Max(highY, 0);
+
 		
 		int dx = ((x1 < x2) ? 1 : ((x1 > x2) ? -1 : 0));  
 		int dy = ((y1 < y2) ? 1 : ((y1 > y2) ? -1 : 0));  
@@ -124,11 +130,11 @@ public partial class LevelGrid
 
 				if((m_cells[lowX, lowY].m_contentsMask & contentsMask) != 0)
 				{
-					outHitCell = m_cells[lowX, lowY];
+					outHit.x = lowX;
+					outHit.y = lowY;
+					outHit.cell = m_cells[lowX, lowY];
 					return true;
 				}
-
-				Debug.DrawLine(new Vector2((lowX * m_cellSize), (lowY * m_cellSize)) + m_gridStart, new Vector2((lowX * m_cellSize) + m_cellSize, (lowY * m_cellSize) + m_cellSize) + m_gridStart, Color.green);
 			}  
 			else if (ty <= tx)  
 			{  
@@ -141,15 +147,27 @@ public partial class LevelGrid
 
 				if((m_cells[lowX, lowY].m_contentsMask & contentsMask) != 0)
 				{
-					outHitCell = m_cells[lowX, lowY];
+					outHit.x = lowX;
+					outHit.y = lowY;
+					outHit.cell = m_cells[lowX, lowY];
 					return true;
 				}
-
-				Debug.DrawLine(new Vector2((lowX * m_cellSize), (lowY * m_cellSize)) + m_gridStart, new Vector2((lowX * m_cellSize) + m_cellSize, (lowY * m_cellSize) + m_cellSize) + m_gridStart, Color.green);
 			}  
 		}
 
 		return false;
+	}
+
+	public bool GetCellLocation(int x, int y, out Vector2 outLocation)
+	{
+		outLocation = new Vector2(0.0f, 0.0f);
+
+		if(x < 0 || y < 0 || x >= m_numCellsX || y >= m_numCellsY) { return false; }
+
+		outLocation.x = m_gridStart.x + (x * m_cellSize);
+		outLocation.y = m_gridStart.y + (y * m_cellSize);
+
+		return true;
 	}
 }
 
