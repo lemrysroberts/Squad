@@ -36,7 +36,43 @@ public class Level : MonoBehaviour
 
 		renderer.material = Resources.Load<Material>(GameData.Data_DebugGridMaterial);
 		
-		filter.mesh 			= m_grid.DebugMesh;
+		filter.mesh 			= m_grid.ContentsMesh;
 	}
+
+	private Vector2 rayStart = Vector2.zero;
+	private Vector2 rayEnd = Vector2.zero;
+
+	void Update()
+	{
+		if(Input.GetMouseButtonDown(0))
+		{
+			rayStart = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		}
+
+		if(Input.GetMouseButtonDown(1))
+		{
+			rayEnd = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		}
+
+
+		int mask = (int)LevelGrid.GridCellContents.Blocked;
+		LevelGrid.GridCell hitCell;
+
+		bool hit = m_grid.Raycast(rayStart, rayEnd, mask, out hitCell);
+	}
+
+	void OnGUI()
+	{
+		if(GUI.Button(new Rect(300.0f, 20.0f, 200.0f, 50.0f), "Ray test"))
+		{
+			int mask = (int)LevelGrid.GridCellContents.Blocked;
+			LevelGrid.GridCell hitCell;
+
+		//	bool hit = m_grid.Raycast(mask, out hitCell);
+		}
+
+		int.TryParse( GUI.TextField(new Rect(600.0f, 10.0f, 60.0f, 40.0f), rayIterations.ToString()), out rayIterations);
+	}
+
+	private int rayIterations = 20;
 }
- 

@@ -41,7 +41,7 @@ Shader "Custom/Unlit/FlatColour"
 			
 			half4 frag (v2f i) : COLOR
 			{
-			    return _Color * i.color.a;
+			    return _Color * i.color;
 			}
 			ENDCG
 	
