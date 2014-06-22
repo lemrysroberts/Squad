@@ -70,9 +70,9 @@ public partial class LevelGrid
 		Color[] colors = new Color[m_numCellsX * m_numCellsY * 4];
 		int[] indices = new int[m_numCellsX * m_numCellsY * 6];
 		
-		int vertIndex = 0;
-		int index = 0;
-		
+		int vertIndex 	= 0;
+		int index 		= 0;
+
 		for(int y = 0; y < m_numCellsY; y++)
 		{
 			for(int x = 0; x < m_numCellsX; x++)
@@ -82,8 +82,8 @@ public partial class LevelGrid
 				verts[vertIndex + 2] = new Vector3(x * m_cellSize, (y + 1) * m_cellSize, 0.0f);
 				verts[vertIndex + 3] = new Vector3((x + 1) * m_cellSize, (y + 1) * m_cellSize, 0.0f);
 				
-				Color color = ((m_cells[x, y].m_contentsMask & (int)LevelGrid.GridCellContents.Blocked) != 0) ? Color.red : Color.white;
-				
+				Color color = ((m_cells[x, y].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0) ? Color.red : Color.white;
+
 				colors[vertIndex] = color;
 				colors[vertIndex + 1] = color;
 				colors[vertIndex + 2] = color;
@@ -100,8 +100,7 @@ public partial class LevelGrid
 				index+= 6;
 			}
 		}
-		
-		
+
 		m_contentsMesh.vertices = verts;
 		m_contentsMesh.colors = colors;
 		m_contentsMesh.SetIndices(indices, MeshTopology.Triangles, 0);

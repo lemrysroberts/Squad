@@ -12,30 +12,11 @@ public class LevelGridRaycastHit
 {
 	public int x;
 	public int y;
-	public LevelGrid.GridCell cell;
+	public GridCell cell;
 }
 
 public partial class LevelGrid
 {
-	public enum GridCellContents
-	{
-		Empty 	= 0,
-		Blocked = 1
-	}
-
-	public class GridCell
-	{
-		public int m_contentsMask = 0;
-
-		public GridCell()
-		{
-			if(Random.value > 0.9f)
-			{
-				m_contentsMask = (int)GridCellContents.Blocked;
-			}
-		}
-	}
-
 	private GridCell[,] m_cells = null;
 	private int m_numCellsX 	= 1;
 	private int m_numCellsY 	= 1;
@@ -44,6 +25,9 @@ public partial class LevelGrid
 	private float m_gridSizeY	= 1.0f;
 	private Vector2 m_gridStart = Vector2.zero;
 	private Vector2 m_gridEnd 	= Vector2.zero;
+
+	public int NumCellsX { get { return m_numCellsX; } }
+	public int NumCellsY { get { return m_numCellsY; } }
 
 	public LevelGrid(float cellSize, Vector2 start, Vector2 end)
 	{
@@ -72,8 +56,10 @@ public partial class LevelGrid
 				m_cells[x, y] = new GridCell();
 			}
 		}
+	}
 
-
+	public void RebuildMeshes()
+	{
 		RebuildDebugMesh();
 		RebuildContentsMesh();
 	}
@@ -168,6 +154,11 @@ public partial class LevelGrid
 		outLocation.y = m_gridStart.y + (y * m_cellSize);
 
 		return true;
+	}
+
+	public GridCell GetCell(int x, int y)
+	{
+		return m_cells[x, y];
 	}
 }
 

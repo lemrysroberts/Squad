@@ -67,20 +67,30 @@ public class TestWeapon : Weapon
 		if(Random.Range(0, 5) != 0)
 		{
 			shotDirection = Vector3.Lerp(m_shotRegionStartDirection, m_shotRegionEndDirection, Random.value) * 10.0f;
+			LevelGrid grid = Level.Instance.GetGrid();
+
+			int hitMask = 1 << (int)GridCellContentsType.Wall;
+
+			LevelGridRaycastHit hit = new LevelGridRaycastHit();
+
+			if(grid.Raycast(m_owner.transform.position, m_owner.transform.position + (Vector3)shotDirection, hitMask, ref hit))
+			{
+				Vector2 hitPosition;
+				grid.GetCellLocation(hit.x, hit.y, out hitPosition);
+				hit.cell.ApplyDamage(ShotDamage, DamageType.Bullet, shotDirection);
+
+				Debug.DrawLine((Vector3)hitPosition + new Vector3(0.0f, 0.0f, -1.2f) , (Vector3)hitPosition + new Vector3(0.2f, 0.2f, -1.2f), Color.green, 2.0f);
+			}
+
 		}
 		else
 		{
 			m_shotCandidates[target].EntityHealth.ApplyDamage(ShotDamage, DamageType.Bullet);
 		}
+
 		Debug.DrawLine(m_owner.transform.position, m_owner.transform.position + (Vector3)shotDirection, Color.white, 0.2f);
 
 
 		ScreenShake.Instance.AddShake(0.2f, m_owner.transform.position);
-		//Physics2D.RaycastAll(m_owner.transform.position, 
-
-
-
 	}
-
-
 }

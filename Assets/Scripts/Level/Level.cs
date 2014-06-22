@@ -6,18 +6,33 @@ public class Level : MonoBehaviour
 {
 	private MeshRenderer m_meshRenderer = null;
 	private LevelGrid m_grid 			= null;
+	private Walls m_walls				= null;
+
+	private MeshRenderer m_debugGridRenderer = null;
+	private MeshFilter m_debugGridFilter = null;
+
+	private static Level s_instance		= null;
 
 	const float m_cellSize 				= 0.2f;
 
 	private LevelGridRaycastHit m_raycastHit;
 
+	public static Level Instance { get { return s_instance; } }
+
+	public LevelGrid GetGrid() { return m_grid; }
+
 	void Start () 
 	{
+		s_instance = this;
+
 		m_raycastHit = new LevelGridRaycastHit();
 
 		m_meshRenderer 	= GetComponent<MeshRenderer>();
 
 		m_grid 			= new LevelGrid(m_cellSize, m_meshRenderer.bounds.min, m_meshRenderer.bounds.max);
+		m_walls			= new Walls(m_grid);
+
+		m_grid.RebuildMeshes();
 
 		CreateGridObject();
 
@@ -30,22 +45,34 @@ public class Level : MonoBehaviour
 		transform.position = position;
 	}
 
+	public void UpdateDebugMeshes()
+	{
+		m_grid.RebuildMeshes();
+
+		if(m_debugGridFilter != null)
+		{
+			m_debugGridFilter.sharedMesh = null;
+			m_debugGridFilter.sharedMesh = m_grid.ContentsMesh;
+		}
+	}
+
 	private void CreateGridObject()
 	{
 		GameObject gridObject = new GameObject("Grid");
 		gridObject.transform.position = m_meshRenderer.bounds.min + new Vector3(0.0f, 0.0f, -1.0f);
 		
-		MeshRenderer renderer 	= gridObject.AddComponent<MeshRenderer>();
-		MeshFilter filter 		= gridObject.AddComponent<MeshFilter>();
+		m_debugGridRenderer 	= gridObject.AddComponent<MeshRenderer>();
+		m_debugGridFilter 		= gridObject.AddComponent<MeshFilter>();
 
-		renderer.material = Resources.Load<Material>(GameData.Data_DebugGridMaterial);
+		m_debugGridRenderer.material = Resources.Load<Material>(GameData.Data_DebugGridMaterial);
 		
-		filter.mesh 			= m_grid.ContentsMesh;
+		m_debugGridFilter.sharedMesh 			= m_grid.ContentsMesh;
 	}
 
 	private Vector2 rayStart = Vector2.zero;
 	private Vector2 rayEnd = Vector2.zero;
 
+	// TODO: Remove the ray-test code!
 	void Update()
 	{
 		if(Input.GetMouseButton(0))
@@ -58,9 +85,8 @@ public class Level : MonoBehaviour
 			rayEnd = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		}
 
-
-		int mask = (int)LevelGrid.GridCellContents.Blocked;
-		LevelGrid.GridCell hitCell;
+		int mask = (1 << (int)GridCellContentsType.Wall);
+		GridCell hitCell;
 
 		bool hit = m_grid.Raycast(rayStart, rayEnd, mask, ref m_raycastHit);
 
@@ -75,6 +101,11 @@ public class Level : MonoBehaviour
 			Debug.DrawLine(hitLocation, hitLocation + new Vector2(m_cellSize, m_cellSize), Color.green);
 			Debug.DrawLine(hitLocation + new Vector2(0.0f, m_cellSize), hitLocation + new Vector2(m_cellSize, 0.0f), Color.green);
 		}
+	}
+
+	void LateUpdate()
+	{
+		m_walls.LateUpdate();
 	}
 
 	private int rayIterations = 20;
