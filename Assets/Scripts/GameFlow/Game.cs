@@ -44,7 +44,7 @@ public class Game : MonoBehaviour
 
 	private void SpawnTeams()
 	{
-		const int numTeams 			= 2;
+		const int numTeams 			= 1;
 		const int numTeamMembers 	= 3;
 		const float spawnWidth 		= 10.0f;
 

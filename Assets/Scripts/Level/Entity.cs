@@ -5,38 +5,35 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Selectable))]
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
-[RequireComponent(typeof(ActionSource))]
 [RequireComponent(typeof(EntityHealth))]
-public class Entity : MonoBehaviour , ISelectable
+public class Entity : Spawnable , ISelectable
 {
-	enum EntityState
+	protected enum EntityState
 	{
 		Alive,
 		Dead
 	}
 
 	public float PerceptionRange					= 5.0f;
-
 	public float focusMinAngle						= -45.0f;
 	public float focusMaxAngle						= 45.0f;
 
-	private Rigidbody2D m_rigidBody 				= null;
-	private BoxCollider2D m_collider 				= null;
-	private Selectable m_selectable 				= null;
-	private SpriteRenderer m_spriteRenderer 		= null;
-	private ActionSource m_actionSource				= null;
-	private Perception m_perception					= null;
-	private EntityHealth m_health					= null;
+	protected Rigidbody2D m_rigidBody 				= null;
+	protected BoxCollider2D m_collider 				= null;
+	protected Selectable m_selectable 				= null;
+	protected SpriteRenderer m_spriteRenderer 		= null;
+	protected Perception m_perception				= null;
+	protected EntityHealth m_health					= null;
+	protected GameObject m_perceptionGameObject		= null;
+	protected CircleCollider2D m_perceptionCollider	= null;
 
-	private GameObject m_actionSourceObject			= null;
+	protected EntityAction m_currentAction			= null;
+	protected Weapon m_currentWeapon				= null;
+	protected int m_teamID							= -1;
+	protected EntityState m_state					= EntityState.Alive;
 
-	private Queue<EntityAction> m_actionQueue 		= new Queue<EntityAction>();
-	private Queue<EntityAction> m_planQueue			= new Queue<EntityAction>();
-
-	private EntityAction m_currentAction			= null;
-	private Weapon m_currentWeapon					= null;
-	private int m_teamID							= -1;
-	private EntityState m_state						= EntityState.Alive;
+	protected Queue<EntityAction> m_actionQueue 	= new Queue<EntityAction>();
+	protected Queue<EntityAction> m_planQueue		= new Queue<EntityAction>();
 
 	public Perception EntityPerception 	{ get { return m_perception; } }
 	public EntityHealth EntityHealth 	{ get { return m_health; } }
@@ -44,16 +41,24 @@ public class Entity : MonoBehaviour , ISelectable
 	public void SetTeamID(int TeamID) 	{ m_teamID = TeamID; }
 	public int GetTeamID()	 			{ return m_teamID; }
 
+	public override void OnSpawn()
+	{
+
+	}
+
+	public override void OnDespawn()
+	{
+
+	}
+
 	// Use this for initialization
-	void Start () 
+	protected virtual void Start () 
 	{
 		m_currentWeapon = new TestWeapon(this);
 
-		GetComponent<ActionSource>().SetEntity(this);
-
 		m_selectable 		= GetComponent<Selectable>();
 		m_spriteRenderer 	= GetComponent<SpriteRenderer>();
-		m_actionSource 		= GetComponent<ActionSource>();
+
 		m_rigidBody 		= GetComponent<Rigidbody2D>();
 		m_collider 			= GetComponent<BoxCollider2D>();
 		m_health 			= GetComponent<EntityHealth>();
@@ -68,15 +73,14 @@ public class Entity : MonoBehaviour , ISelectable
 
 		m_collider.size = new Vector2(entitySprite.bounds.size.x, entitySprite.bounds.size.y);
 
-		m_actionSource = GetComponent<ActionSource>();
+		m_perceptionGameObject = new GameObject("perception");
+		m_perceptionGameObject.transform.parent = transform;
+		m_perceptionGameObject.transform.localPosition = Vector3.zero;
+		m_perceptionCollider = m_perceptionGameObject.AddComponent<CircleCollider2D>();
+		m_perceptionCollider.isTrigger = true;
+		m_perceptionCollider.radius = m_currentWeapon.Range;
 
-		m_actionSourceObject = new GameObject("perception");
-		m_actionSourceObject.transform.parent = transform;
-		m_actionSourceObject.transform.localPosition = Vector3.zero;
-		CircleCollider2D perceptionCollider = m_actionSourceObject.AddComponent<CircleCollider2D>();
-		perceptionCollider.isTrigger = true;
-		perceptionCollider.radius = m_currentWeapon.Range;
-		m_perception = m_actionSourceObject.AddComponent<Perception>();
+		m_perception = m_perceptionGameObject.AddComponent<Perception>();
 		m_perception.SetOwner(this);
 
 		m_health.SetOnKill(new EntityHealth.EntityKilled(EntityKilled));
@@ -120,41 +124,7 @@ public class Entity : MonoBehaviour , ISelectable
 		m_actionQueue.Enqueue(newAction);
 	}
 
-	public void AddActionToPlan(EntityAction newPlanAction)
-	{
-		m_planQueue.Enqueue(newPlanAction);
-	}
 
-	public void ResetPlan()
-	{
-		m_planQueue.Clear();
-	}
-
-	public void ExecutePlan()
-	{
-		if(m_actionSource == null || m_actionSource.Action == null || m_state != EntityState.Alive)
-		{
-			return;
-		}
-
-		if(m_currentAction != null)
-		{
-			m_currentAction.End();
-			m_currentAction = null;
-		}
-
-		m_actionQueue.Clear();
-
-		ActionSource currentSource = m_actionSource;
-		while(currentSource != null && currentSource.Action != null)
-		{
-			m_actionQueue.Enqueue(currentSource.Action);
-			currentSource = currentSource.Action.ChildSource;
-		}
-
-		m_planQueue.Clear();
-		Debug.Log("Executing plan " + m_actionQueue.Count);
-	}
 
 	public bool Select()
 	{
@@ -188,11 +158,11 @@ public class Entity : MonoBehaviour , ISelectable
 		GUI.Label(new Rect(position.x, Screen.height - position.y, 200.0f, 50.0f), "Health: " + m_health.CurrentHealth);		
 	}
 
-	void EntityKilled()
+	protected virtual void EntityKilled()
 	{
 		Debug.Log("Killed");
 		m_state = EntityState.Dead;
-		m_actionSourceObject.SetActive(false);
+
 	}
 
 	public Vector2 Position

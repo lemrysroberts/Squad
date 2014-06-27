@@ -6,7 +6,7 @@ public class Team : MonoBehaviour
 	private bool m_initialised 			= false;
 	private int m_teamID 				= -1;
 
-	private List<Entity> m_teamMembers = new List<Entity>();
+	private List<SquadMember> m_teamMembers = new List<SquadMember>();
 
 	public void InitTeam(int teamID)
 	{
@@ -27,7 +27,7 @@ public class Team : MonoBehaviour
 		newTeamMemberObject.transform.parent = this.transform;
 		newTeamMemberObject.transform.position = new Vector3(location.x, location.y, -1.0f);
 
-		Entity newTeamMember 		= newTeamMemberObject.AddComponent<Entity>();
+		SquadMember newTeamMember 		= newTeamMemberObject.AddComponent<SquadMember>();
 		newTeamMember.SetTeamID(m_teamID);
 
 		m_teamMembers.Add(newTeamMember);

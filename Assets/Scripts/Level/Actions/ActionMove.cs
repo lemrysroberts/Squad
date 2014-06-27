@@ -128,6 +128,18 @@ public class ActionMove : EntityAction
 	{ 
 		m_currentHoverPoint = location;
 		m_lineRenderer.SetPosition(m_waypoints.Count + 1, (Vector3)location);
+
+		Vector2 entityPosition = GetEntity().Position;
+
+		Route route = Level.Instance.GetGrid().GetRoute(entityPosition, location, 2);
+
+		float offset = 0.2f;
+		Vector2 offsetVec = new Vector2(offset, offset);
+
+		if(route != null)
+		{
+			Level.Instance.GetGrid().RenderDebugRoute(route);
+		}
 	}
 
 	public override bool Commit() 

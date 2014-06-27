@@ -1,8 +1,16 @@
-﻿//////////////////////////////////////////////////////////////////////////////////
-/// LevelGrid.cs
-/// 
-/// Notes: Raycasting shamelessly nicked from xboxforums.create.msdn.com/forums/p/42727/252947.aspx
-/// 
+﻿/////////////////////////////////////////////////////////////////////
+// 
+// LevelGrid.cs
+//
+// What it does: Hold the grid-based information for the level for collision and pathing.
+//
+// Notes: Raycasting shamelessly nicked from xboxforums.create.msdn.com/forums/p/42727/252947.aspx
+//		  Partial class with LevelGrid_debug
+//		  Partial class with LevelGrid_graphs
+// 
+// To-do: 	Overlap functions
+//			Path smoothing
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 using UnityEngine;
@@ -13,6 +21,12 @@ public class LevelGridRaycastHit
 	public int x;
 	public int y;
 	public GridCell cell;
+}
+
+public class Point
+{
+	public int x;
+	public int y;
 }
 
 public partial class LevelGrid
@@ -29,23 +43,21 @@ public partial class LevelGrid
 	public int NumCellsX { get { return m_numCellsX; } }
 	public int NumCellsY { get { return m_numCellsY; } }
 
-	public LevelGrid(float cellSize, Vector2 start, Vector2 end)
+	public Vector2 GridStart { get { return m_gridStart; } }
+
+	public LevelGrid(float cellSize, int numCellsX, int numCellsY)
 	{
 		m_cellSize = cellSize;
 
-		// Determine the size of the requested grid.
-		float width 	= end.x - start.x;
-		float height 	= end.y - start.y;
-
 		// Work out how many cells that is and bung one on to avoid fractions of cells.
-		m_numCellsX 	= (int)(width / cellSize) + 1;
-		m_numCellsY 	= (int)(height / cellSize) + 1;
+		m_numCellsX 	= numCellsX;
+		m_numCellsY 	= numCellsY;
 
 		m_gridSizeX 	= m_numCellsX * m_cellSize;
 		m_gridSizeY 	= m_numCellsY * m_cellSize;
 
-		m_gridStart 	= start;
-		m_gridEnd 		= m_gridStart + new Vector2(m_gridSizeX, m_gridSizeY);
+		m_gridStart 	= new Vector2(-m_gridSizeX / 2.0f, -m_gridSizeY / 2.0f);
+		m_gridEnd 		= new Vector2(m_gridSizeX / 2.0f, m_gridSizeY / 2.0f);
 
 		m_cells = new GridCell[m_numCellsX, m_numCellsY];
 
@@ -63,7 +75,6 @@ public partial class LevelGrid
 		RebuildDebugMesh();
 		RebuildContentsMesh();
 	}
-
 
 	// Bounds checking on input rays should be done outside of this method to avoid shitting it up further
 	public bool Raycast(Vector2 rayStart, Vector2 rayEnd, int contentsMask, ref LevelGridRaycastHit outHit)
@@ -159,6 +170,26 @@ public partial class LevelGrid
 	public GridCell GetCell(int x, int y)
 	{
 		return m_cells[x, y];
+	}
+
+	public Point GetCellIndices(Vector2 worldLocation)
+	{
+		Point newPoint = new Point();
+
+		Vector2 relativeLocation = worldLocation - m_gridStart;
+
+		int x = (int)(relativeLocation.x / m_cellSize);
+		int y = (int)(relativeLocation.y / m_cellSize);
+
+		if(x < m_numCellsX && x >= 0 && y < m_numCellsY && y >= 0)
+		{
+			newPoint.x = x;
+			newPoint.y = y;
+
+			return newPoint;
+		}
+
+		return null;
 	}
 }
 

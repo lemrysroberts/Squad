@@ -24,8 +24,10 @@ public class RouteFinder
 		m_openHeap = new BinaryHeap<AIGraphNode>(nodeCount);
 	}
 
-	public Route FindRoute(AIGraph searchGraph, AIGraphNode start, AIGraphNode end)
+	public Route FindRoute(AIGraph searchGraph, AIGraphNode start, AIGraphNode end, int minAnnotation)
 	{
+		m_minAnnotation = minAnnotation;
+
 		Route route = new Route();
 		m_targetPos = end.NodePosition;
 		
@@ -125,14 +127,23 @@ public class RouteFinder
 			{
 				continue;	
 			}
-			
+
+			// Stop-gap metric to ignore blocked cells.
+			// TODO: To be replaced with more robust cost logic with the graph update.
+			// TODO: Sorry about this.  
+			if(link.Metric == -1 || link.Annotation < m_minAnnotation)
+			{
+				continue;
+			}
+				
 			// So, a better metric than this, yeah?
 			m_openHeap.Insert(link, (m_targetPos - link.NodePosition).magnitude);
 			int index = currentNode.ID;
 			m_parentList[link.ID] = index; 
 		}
 	}
-	
+
+	private int m_minAnnotation = -1;
 	private Vector2 m_targetPos;
 	private int[] m_parentList;
 	private bool[] m_closedList;
@@ -143,6 +154,8 @@ public class RouteFinder
 //		 FailedBlocked, FailedIterations, etc.
 public class Route
 {
+	public Vector2 OffsetVector = Vector2.zero;
+	public Vector2 FinalOffset = Vector2.zero;
 	public List<AIGraphNode> m_routePoints = new List<AIGraphNode>();
 	
 #if UNITY_EDITOR

@@ -11,6 +11,9 @@ public class Level : MonoBehaviour
 	private MeshRenderer m_debugGridRenderer = null;
 	private MeshFilter m_debugGridFilter = null;
 
+	[SerializeField]
+	private GameObject m_gridObject = null;
+
 	private static Level s_instance		= null;
 
 	const float m_cellSize 				= 0.2f;
@@ -21,7 +24,7 @@ public class Level : MonoBehaviour
 
 	public LevelGrid GetGrid() { return m_grid; }
 
-	void Start () 
+	public void Start () 
 	{
 		s_instance = this;
 
@@ -29,13 +32,29 @@ public class Level : MonoBehaviour
 
 		m_meshRenderer 	= GetComponent<MeshRenderer>();
 
-		m_grid 			= new LevelGrid(m_cellSize, m_meshRenderer.bounds.min, m_meshRenderer.bounds.max);
-		m_walls			= new Walls(m_grid);
+		LevelLayout layout = LevelLayout.Deserialise(@"C:\Unity\Squad\Assets\Resources\Levels\newlevel.xml");
 
+		LoadFromLayout(layout);
+
+	}
+
+	public void LoadFromLayout(LevelLayout layout)
+	{
+		m_grid 	= new LevelGrid(m_cellSize, 100, 100);
+		m_walls	= new Walls(m_grid, layout);
+		
 		m_grid.RebuildMeshes();
+		m_grid.RebuildGraphs();
 
 		CreateGridObject();
 
+		m_gridObject.transform.position = new Vector3(m_grid.GridStart.x, m_grid.GridStart.y, -1.0f);
+
+	}
+
+	public void OnDestroy()
+	{
+		if(m_gridObject != null) { GameObject.DestroyImmediate(m_gridObject); }
 	}
 
 	public void StartLevel()
@@ -56,13 +75,15 @@ public class Level : MonoBehaviour
 		}
 	}
 
-	private void CreateGridObject()
+	private void CreateGridObject() 
 	{
-		GameObject gridObject = new GameObject("Grid");
-		gridObject.transform.position = m_meshRenderer.bounds.min + new Vector3(0.0f, 0.0f, -1.0f);
+		if(m_gridObject != null) { GameObject.DestroyImmediate(m_gridObject); }
+
+		m_gridObject = new GameObject("Grid");
+		m_gridObject.transform.position = m_meshRenderer.bounds.min + new Vector3(0.0f, 0.0f, -1.0f);
 		
-		m_debugGridRenderer 	= gridObject.AddComponent<MeshRenderer>();
-		m_debugGridFilter 		= gridObject.AddComponent<MeshFilter>();
+		m_debugGridRenderer 	= m_gridObject.AddComponent<MeshRenderer>();
+		m_debugGridFilter 		= m_gridObject.AddComponent<MeshFilter>();
 
 		m_debugGridRenderer.material = Resources.Load<Material>(GameData.Data_DebugGridMaterial);
 		
@@ -75,6 +96,28 @@ public class Level : MonoBehaviour
 	// TODO: Remove the ray-test code!
 	void Update()
 	{
+		/*
+		if(Input.GetKeyDown(KeyCode.R))
+		{
+			Route route = m_grid.GetRoute(2);
+			Debug.Log(route.m_routePoints.Count);
+			for(int i = 0; i < route.m_routePoints.Count - 1; i++)
+			{
+				Debug.DrawLine((Vector3)route.m_routePoints[i].NodePosition  + new Vector3(0.0f, 0.0f, -1.0f), (Vector3)route.m_routePoints[i + 1].NodePosition  + new Vector3(0.0f, 0.0f, -1.0f), Color.magenta, 5.0f  );
+			}
+		}
+
+		if(Input.GetKeyDown(KeyCode.T))
+		{
+			Route route = m_grid.GetRoute(1);
+			Debug.Log(route.m_routePoints.Count);
+			for(int i = 0; i < route.m_routePoints.Count - 1; i++)
+			{
+				Debug.DrawLine((Vector3)route.m_routePoints[i].NodePosition  + new Vector3(0.0f, 0.0f, -1.0f), (Vector3)route.m_routePoints[i + 1].NodePosition  + new Vector3(0.0f, 0.0f, -1.0f), Color.magenta, 5.0f  );
+			}
+		}
+		*/
+
 		if(Input.GetMouseButton(0))
 		{
 			rayStart = Camera.main.ScreenToWorldPoint(Input.mousePosition);

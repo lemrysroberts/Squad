@@ -7,7 +7,7 @@ public class Walls
 	private List<WallChunk> m_chunks = new List<WallChunk>();
 	private List<WallChunk> m_destroyedThisFrame = new List<WallChunk>();
 
-	public Walls(LevelGrid grid)
+	public Walls(LevelGrid grid, LevelLayout layout)
 	{
 		m_grid = grid;
 
@@ -15,7 +15,13 @@ public class Walls
 		{
 			for(int y = 0; y < m_grid.NumCellsY; y++)
 			{
-				if(Random.value > 0.9f)
+				bool[][] contents = layout.GetContents(); 
+
+				bool test = contents[0][0];
+
+				if(
+				
+					 contents[x][y])
 				{
 					WallChunk newChunk = new WallChunk(this);
 					m_chunks.Add(newChunk);
@@ -24,6 +30,7 @@ public class Walls
 				}
 			}
 		}
+
 	}
 
 	public void ChunkDestroyed(WallChunk chunk)

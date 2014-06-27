@@ -29,6 +29,8 @@ public class SquadEditorHub :  EditorWindow
 		{
 			SceneView.onSceneGUIDelegate += this.OnSceneGUI;
 		}
+
+		LevelEditor.OnEnable();
 	}
 	
 	void OnGUI()
