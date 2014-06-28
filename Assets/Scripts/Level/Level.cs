@@ -42,9 +42,11 @@ public class Level : MonoBehaviour
 	{
 		m_grid 	= new LevelGrid(m_cellSize, 100, 100);
 		m_walls	= new Walls(m_grid, layout);
-		
-		m_grid.RebuildMeshes();
+
 		m_grid.RebuildGraphs();
+
+		m_grid.RebuildMeshes();
+
 
 		CreateGridObject();
 
@@ -96,6 +98,13 @@ public class Level : MonoBehaviour
 	// TODO: Remove the ray-test code!
 	void Update()
 	{
+		if(Input.GetKeyDown(KeyCode.Y))
+		{
+			m_grid.GetCell(10, 10).AddType(GridCellContentsType.Wall);
+			m_grid.UpdateCellBlocked(10, 10, true);
+			UpdateDebugMeshes();
+		}
+
 		/*
 		if(Input.GetKeyDown(KeyCode.R))
 		{

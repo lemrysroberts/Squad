@@ -5,6 +5,9 @@ public class GridCell
 {
 	public int m_contentsMask = 0;
 
+	public int x = -1;
+	public int y = -1;
+
 	private List<GridCellContents> m_contents = new List<GridCellContents>();
 	private int[] m_contentTypeCounts;
 	

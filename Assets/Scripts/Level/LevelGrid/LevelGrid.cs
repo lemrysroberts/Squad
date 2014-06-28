@@ -66,6 +66,8 @@ public partial class LevelGrid
 			for(int x = 0; x < m_numCellsX; x++)
 			{
 				m_cells[x, y] = new GridCell();
+				m_cells[x, y].x = x;
+				m_cells[x, y].y = y;
 			}
 		}
 	}
@@ -192,4 +194,5 @@ public partial class LevelGrid
 		return null;
 	}
 }
+
 

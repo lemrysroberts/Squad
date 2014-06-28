@@ -31,6 +31,8 @@ public class WallChunk : GridCellContents
 			m_owner.RemoveType(GetContentsType());
 			m_destroyed = true;
 			m_owner.AddType(GetContentsType());
+
+			Level.Instance.GetGrid().UpdateCellBlocked(m_owner.x, m_owner.y, false);
 		}
 	}
 	

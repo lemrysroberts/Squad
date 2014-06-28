@@ -9,6 +9,8 @@ struct CandidateAnglePair
 
 public class TestWeapon : Weapon 
 {
+	public bool AlwaysFiring					= false;
+
 	public float ShotDamage						= 2.0f;
 	public int ShotsPerMinute 					= 600;
 
@@ -58,13 +60,19 @@ public class TestWeapon : Weapon
 			}
 		}
 
-		if(m_shotCandidates.Count == 0) { return; }
+		if(m_shotCandidates.Count == 0 && !AlwaysFiring) { return; }
 
-		int target = Random.Range(0, m_shotCandidates.Count);
+		Vector2 shotDirection = Vector2.zero;
+		int target = -1;
 
-		Vector2 shotDirection = (m_shotCandidates[target].transform.position - m_owner.transform.position);
+		if(!AlwaysFiring)
+		{
+			target = Random.Range(0, m_shotCandidates.Count);
 
-		if(Random.Range(0, 5) != 0)
+			shotDirection = (m_shotCandidates[target].transform.position - m_owner.transform.position);
+		}
+
+		if(Random.Range(0, 5) != 0 || AlwaysFiring)
 		{
 			shotDirection = Vector3.Lerp(m_shotRegionStartDirection, m_shotRegionEndDirection, Random.value) * 10.0f;
 			LevelGrid grid = Level.Instance.GetGrid();

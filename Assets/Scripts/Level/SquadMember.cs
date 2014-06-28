@@ -16,10 +16,13 @@ public class SquadMember : Entity
 		m_actionSource.SetEntity(this);
 
 		m_actionSource 		= GetComponent<ActionSource>();
+		TestWeapon weapon = (TestWeapon)m_currentWeapon;
+
+		weapon.AlwaysFiring = true;
 	}
 
 	public void AddActionToPlan(EntityAction newPlanAction)
-	{
+	{ 
 		m_planQueue.Enqueue(newPlanAction); 
 	}
 	

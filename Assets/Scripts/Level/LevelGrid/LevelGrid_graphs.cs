@@ -4,7 +4,7 @@
 //
 // What it does: Handles the updating of the level's node-graph that's used for pathing.
 //
-// Notes: Raycasting shamelessly nicked from xboxforums.create.msdn.com/forums/p/42727/252947.aspx
+// Notes: Clearance path-finding nabbed from http://aigamedev.com/open/tutorials/clearance-based-pathfinding/
 //		  Partial class with LevelGrid_debug
 //		  Partial class with LevelGrid
 // 
@@ -19,60 +19,95 @@ using System.Collections;
 
 public partial class LevelGrid
 {
+	const int MaxClearance = 5;
+
+	private class ClearanceBlockers
+	{
+		public int[] blockerCount;
+
+		public ClearanceBlockers()
+		{
+			blockerCount = new int[MaxClearance];
+		}
+	}
+
 	private AIGraph m_defaultGraph = null;
 	private AIGraphNode[][] m_defaultNodes = null;
+	private ClearanceBlockers[][] m_blockers = null;
 
 	public void RebuildGraphs()
 	{
 		m_defaultGraph = new AIGraph();
 		m_defaultNodes = new AIGraphNode[m_numCellsX][];
-
-		const int maxAnnotationSize = 5;
+		m_blockers	   = new ClearanceBlockers[m_numCellsX][];
 
 		for(int x = 0; x < m_numCellsX; x++)
 		{
 			m_defaultNodes[x] = new AIGraphNode[m_numCellsY];
+			m_blockers[x]  = new ClearanceBlockers[m_numCellsY];
 
 			for(int y = 0; y < m_numCellsY; y++)
 			{
 				m_defaultNodes[x][y] = m_defaultGraph.AddNode(m_gridStart + (new Vector2(x, y) * m_cellSize));
 
+				m_blockers[x][y] = new ClearanceBlockers();
+
 				// Calculate the accessibility of each cell by checking increasingly large areas in +x, +y,
 				// up to maxAnnotationSize, maxAnnotationSize
 
 				// Annotation of 0 if the cell itself is blocked
-				if((m_cells[x, y].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
-				{
-					m_defaultNodes[x][y].Annotation = 0;
-				} 
-				else
+
+
 				{
 					// A single open cell has access of 1, so start there
 					int annotation = 1;
-					bool obstructionFound = false;
-					for(int annotationLevel = 1; annotationLevel < maxAnnotationSize && !obstructionFound; annotationLevel++)
-					{
-						for(int localX = 0; localX < annotationLevel; localX++)
-						{
-							for(int localY = 0; localY < annotationLevel; localY++)
-							{
-								// Bounds
-								if((x + localX) >= m_numCellsX || (y + localY) >= m_numCellsY)
-								{
-									obstructionFound = true;
-									continue;
-								}
 
-								if((m_cells[x + localX, y + localY].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
-								{
-									obstructionFound = true;
-									continue;
-								}
+					// Iterate the rows down and left, correcting their maximum clearance if they included the blocked cell.
+					for(int i = 1; i < MaxClearance; i++)
+					{
+						for(int xIndex = 0; xIndex < i; xIndex++)
+						{
+							if( (x + xIndex) >= m_numCellsX ||
+							    (y + i) >= m_numCellsY ||
+								(m_cells[x + xIndex, y + i].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
+							{
+								m_blockers[x][y].blockerCount[i]++;
 							}
 						}
-						annotation = annotationLevel;
+						
+						for(int yIndex = 0; yIndex < (i + 1); yIndex++)
+						{
+							if( (x + i) >= m_numCellsX ||
+							    (y + yIndex) >= m_numCellsY ||
+								(m_cells[x + i, y + yIndex].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
+							{
+								m_blockers[x][y].blockerCount[i]++;
+							}
+						}
 					}
-					m_defaultNodes[x][y].Annotation = annotation - 1;
+
+					bool blockerFound = false;
+
+					for(int i = 0; i < MaxClearance && !blockerFound; i++)
+					{
+						if(m_blockers[x][y].blockerCount[i] > 0)
+						{
+
+							blockerFound = true;
+							continue;
+						}
+						else
+						{
+							m_defaultNodes[x][y].Annotation = i + 1;
+						}
+
+					}
+
+					if((m_cells[x, y].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
+					{
+						m_defaultNodes[x][y].Annotation = 0;
+						m_blockers[x][y].blockerCount[0]++;
+					} 
 				}
 			}
 		}
@@ -88,6 +123,119 @@ public partial class LevelGrid
 				if(y < m_numCellsY - 1) m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x][y + 1]);
 			}
 		}
+	}
+
+	public void UpdateCellBlocked(int x, int y, bool blocked)
+	{
+		if(blocked)
+		{
+			CellBlocked(x, y);
+		}
+		else
+		{
+			CellUnblocked(x, y);
+		}
+	}
+
+	private void CellBlocked(int x, int y)
+	{
+		const int maxAnnotationSize = 6;
+
+		m_defaultNodes[x][y].Annotation = 0;
+
+		// Iterate the rows down and left, correcting their maximum clearance if they included the blocked cell.
+		for(int i = 1; i < maxAnnotationSize; i++)
+		{
+			for(int xIndex = 0; xIndex < i + 1; xIndex++)
+			{
+				m_blockers[x - xIndex][y - i].blockerCount[i]++;
+				if(m_defaultNodes[x - xIndex][y - i].Annotation > (i + 1))
+				{
+					m_defaultNodes[x - xIndex][y - i].Annotation = (i + 1);
+				}
+			}
+
+			for(int yIndex = 0; yIndex < i; yIndex++)
+			{
+				m_blockers[x - i][y - yIndex].blockerCount[i]++;
+				if(m_defaultNodes[x - i][y - yIndex].Annotation > (i + 1))
+				{
+					m_defaultNodes[x - i][y - yIndex].Annotation = (i + 1);
+				}
+			}
+		}
+	}
+
+	private void CellUnblocked(int x, int y)
+	{
+		m_blockers[x][y].blockerCount[0] = 0;
+
+		bool blockerFound = false;
+
+		// Iterate the rows down and left, correcting their maximum clearance if they included the blocked cell.
+		for(int i = 1; i < MaxClearance; i++)
+		{
+			// i - 1 to prevent overlapping corners and double decrements
+			for(int xIndex = 0; xIndex < i + 1; xIndex++)
+			{
+				m_blockers[x - xIndex][y - i].blockerCount[i]--;
+
+				blockerFound = false;
+				
+				for(int j = 0; j < MaxClearance && !blockerFound; j++)
+				{
+					if(m_blockers[x - xIndex][y - i].blockerCount[j] > 0)
+					{ 
+						blockerFound = true; 
+						continue;
+					}
+					else
+					{
+						m_defaultNodes[x - xIndex][y - i].Annotation = j + 1;
+					}
+					
+				}
+
+			}
+			
+			for(int yIndex = 0; yIndex < i; yIndex++)
+			{
+				m_blockers[x - i][y - yIndex].blockerCount[i]--;
+
+				blockerFound = false;
+				
+				for(int j = 0; j < MaxClearance && !blockerFound; j++)
+				{
+					if(m_blockers[x - i][y - yIndex].blockerCount[j] > 0)
+					{ 
+						blockerFound = true; 
+						continue;
+					}
+					else
+					{
+						m_defaultNodes[x - i][y - yIndex].Annotation = j + 1;
+					}
+					
+				}
+			}
+		}
+
+		blockerFound = false;
+		
+		for(int j = 0; j < MaxClearance && !blockerFound; j++)
+		{
+			if(m_blockers[x][y].blockerCount[j] > 0)
+			{ 
+				blockerFound = true; 
+				continue;
+			}
+			else
+			{
+				m_defaultNodes[x][y].Annotation = j + 1;
+			}
+			
+		}
+
 	}
 
 	public Route GetRoute(Vector2 origin, Vector2 target, int clearance)

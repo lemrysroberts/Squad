@@ -131,7 +131,7 @@ public class ActionMove : EntityAction
 
 		Vector2 entityPosition = GetEntity().Position;
 
-		Route route = Level.Instance.GetGrid().GetRoute(entityPosition, location, 2);
+		Route route = Level.Instance.GetGrid().GetRoute(entityPosition, location, GetEntity().PathingClearance);
 
 		float offset = 0.2f;
 		Vector2 offsetVec = new Vector2(offset, offset);

@@ -14,6 +14,8 @@ public class Entity : Spawnable , ISelectable
 		Dead
 	}
 
+	public int PathingClearance						= 2;
+
 	public float PerceptionRange					= 5.0f;
 	public float focusMinAngle						= -45.0f;
 	public float focusMaxAngle						= 45.0f;
