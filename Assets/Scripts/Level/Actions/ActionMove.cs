@@ -16,8 +16,16 @@ public class ActionMove : EntityAction
 
 	private Vector2 m_currentHoverPoint = Vector2.zero;
 	private int m_wayPointIndex = 0;
-	private float MoveSpeed = 2.0f;
+	private float MoveSpeed = 1.5f;
 	int val = 0;
+
+	private bool m_hoverpointValid = false;
+	private Route m_route = null;
+	private int m_currentRouteIndex = 0;
+	private float m_lerpRate = 0.0f;
+	private float m_lerpProgress = 0.0f;
+	private Vector2 m_currentDirection = Vector2.zero;
+
 	public ActionMove(Vector2 origin)
 	{
 		m_origin = origin;
@@ -26,20 +34,54 @@ public class ActionMove : EntityAction
 
 	public override void Start() 
 	{
-
+		if(m_route != null && m_route.m_routePoints.Count > 1)
+		{
+			m_currentDirection = m_route.m_routePoints[1].NodePosition - m_route.m_routePoints[0].NodePosition;
+			m_lerpRate = MoveSpeed / m_currentDirection.magnitude;
+			m_currentRouteIndex = 1;
+		}
 	}
 
 	public override void Update()
 	{
-		Debug.Log("Ticking");
-		if(m_owner.GetEntity() != null && m_wayPointIndex < m_waypoints.Count)
+		if(m_owner.GetEntity() != null && m_route != null && m_currentRouteIndex + 1 < m_route.m_routePoints.Count)
 		{
-			Vector2 direction = (m_waypoints[m_wayPointIndex] - (Vector2)m_owner.GetEntity().transform.position);
-			m_owner.GetEntity().transform.position = m_owner.GetEntity().transform.position + (Vector3)direction.normalized * Time.deltaTime * MoveSpeed;
+			m_lerpProgress += m_lerpRate * Time.deltaTime;
 
-			if(direction.sqrMagnitude < 0.1f)
+			Vector3 startVec = m_route.m_routePoints[m_currentRouteIndex].NodePosition + m_route.OffsetVector;
+			Vector3 endVec = m_route.m_routePoints[m_currentRouteIndex + 1].NodePosition + m_route.OffsetVector;
+
+			// As entities can sit off-cell, add the off-cell bit if this is the last node
+			if(m_currentRouteIndex + 1 == m_route.m_routePoints.Count - 1)
 			{
-				m_wayPointIndex++;
+				endVec += (Vector3)m_route.FinalOffset;
+			}
+
+			m_owner.GetEntity().transform.position = Vector3.Lerp(startVec, endVec, m_lerpProgress); 
+
+			if(m_lerpProgress >= 1.0f)
+			{
+				if(m_currentRouteIndex + 2 < m_route.m_routePoints.Count)
+				{
+					m_currentRouteIndex++;
+
+					m_currentDirection = (m_route.m_routePoints[m_currentRouteIndex + 1].NodePosition - m_route.m_routePoints[m_currentRouteIndex].NodePosition);
+					if(m_currentRouteIndex + 2 == m_route.m_routePoints.Count)
+					{
+						Debug.Log("Offset");
+						m_currentDirection += m_route.FinalOffset;
+					}
+
+
+					m_lerpRate = MoveSpeed / m_currentDirection.magnitude;
+
+							m_lerpProgress = 0.0f;
+				}
+				else
+				{
+					m_currentDirection = Vector2.zero;
+					m_route = null;
+				}
 			}
 		}
 	}
@@ -133,22 +175,31 @@ public class ActionMove : EntityAction
 
 		Route route = Level.Instance.GetGrid().GetRoute(entityPosition, location, GetEntity().PathingClearance);
 
+		Debug.Log("Points: " + route.m_routePoints.Count);
+
 		float offset = 0.2f;
 		Vector2 offsetVec = new Vector2(offset, offset);
 
+		m_hoverpointValid = false;
+
 		if(route != null)
 		{
+			if(route.m_routePoints.Count > 0)
+			{
+				m_hoverpointValid = true;
+				m_route = route;
+			}
+
 			Level.Instance.GetGrid().RenderDebugRoute(route);
 		}
 	}
 
 	public override bool Commit() 
 	{
+		if(!m_hoverpointValid) { return false; }
+
 		m_waypoints.Add(m_currentHoverPoint);
 		m_lineRenderer.SetVertexCount(m_waypoints.Count + 2);
-
-
-
 
 		m_endActionSource = new GameObject("end_point");
 		MeshRenderer renderer = m_endActionSource.AddComponent<MeshRenderer>();

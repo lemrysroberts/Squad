@@ -8,9 +8,8 @@
 //		  Partial class with LevelGrid_debug
 //		  Partial class with LevelGrid
 // 
-// To-do: 	Local updates to blocked cells: 
-//			When a cell is blocked, check all cells that could be dependent upon the blocked cell (maxAnnotationSize ^ 2 cells).
-//			If any cell has an annotation equal to that of the distance to the blocked cell, decrement it.
+// To-do: 	Optimising the horror, probably.
+//			There are a lot of mysterious "+1"s in this file that are going to be very confusing.
 //
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -19,96 +18,73 @@ using System.Collections;
 
 public partial class LevelGrid
 {
+	// The largest clearance value that the grid will ever bother handling
 	const int MaxClearance = 5;
 
+	// Tracks how many blockers are present for each clearance level of each cell.
 	private class ClearanceBlockers
 	{
 		public int[] blockerCount;
-
-		public ClearanceBlockers()
-		{
-			blockerCount = new int[MaxClearance];
-		}
+		public ClearanceBlockers() { blockerCount = new int[MaxClearance]; }
 	}
 
-	private AIGraph m_defaultGraph = null;
-	private AIGraphNode[][] m_defaultNodes = null;
-	private ClearanceBlockers[][] m_blockers = null;
+	private AIGraph m_defaultGraph 				= null;
+	private AIGraphNode[][] m_defaultNodes 		= null;
+	private ClearanceBlockers[][] m_blockers 	= null;
 
+	// Create all the cells of the grid, populate initial blocker counts and link all nodes.
 	public void RebuildGraphs()
 	{
 		m_defaultGraph = new AIGraph();
 		m_defaultNodes = new AIGraphNode[m_numCellsX][];
 		m_blockers	   = new ClearanceBlockers[m_numCellsX][];
 
+		// Create the cells
 		for(int x = 0; x < m_numCellsX; x++)
 		{
-			m_defaultNodes[x] = new AIGraphNode[m_numCellsY];
-			m_blockers[x]  = new ClearanceBlockers[m_numCellsY];
+			m_defaultNodes[x] 	= new AIGraphNode[m_numCellsY];
+			m_blockers[x]  		= new ClearanceBlockers[m_numCellsY];
 
 			for(int y = 0; y < m_numCellsY; y++)
 			{
-				m_defaultNodes[x][y] = m_defaultGraph.AddNode(m_gridStart + (new Vector2(x, y) * m_cellSize));
+				m_defaultNodes[x][y] 	= m_defaultGraph.AddNode(m_gridStart + (new Vector2(x, y) * m_cellSize));
+				m_blockers[x][y] 		= new ClearanceBlockers();
 
-				m_blockers[x][y] = new ClearanceBlockers();
-
-				// Calculate the accessibility of each cell by checking increasingly large areas in +x, +y,
-				// up to maxAnnotationSize, maxAnnotationSize
-
-				// Annotation of 0 if the cell itself is blocked
-
-
+				// Iterate the rows down and left, incrementing blocker counts when a blocked cell is encountered.
+				for(int clearance = 1; clearance < MaxClearance; clearance++)
 				{
-					// A single open cell has access of 1, so start there
-					int annotation = 1;
-
-					// Iterate the rows down and left, correcting their maximum clearance if they included the blocked cell.
-					for(int i = 1; i < MaxClearance; i++)
+					for(int xIndex = 0; xIndex < clearance; xIndex++)
 					{
-						for(int xIndex = 0; xIndex < i; xIndex++)
+						// Check bounds, then blockers
+						if( (x + xIndex) 	>= m_numCellsX 	||
+						    (y + clearance) >= m_numCellsY 	||
+						   	(m_cells[x + xIndex, y + clearance].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
 						{
-							if( (x + xIndex) >= m_numCellsX ||
-							    (y + i) >= m_numCellsY ||
-								(m_cells[x + xIndex, y + i].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
-							{
-								m_blockers[x][y].blockerCount[i]++;
-							}
-						}
-						
-						for(int yIndex = 0; yIndex < (i + 1); yIndex++)
-						{
-							if( (x + i) >= m_numCellsX ||
-							    (y + yIndex) >= m_numCellsY ||
-								(m_cells[x + i, y + yIndex].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
-							{
-								m_blockers[x][y].blockerCount[i]++;
-							}
+							m_blockers[x][y].blockerCount[clearance]++;
 						}
 					}
-
-					bool blockerFound = false;
-
-					for(int i = 0; i < MaxClearance && !blockerFound; i++)
+					
+					for(int yIndex = 0; yIndex < (clearance + 1); yIndex++)
 					{
-						if(m_blockers[x][y].blockerCount[i] > 0)
+						// Check bounds, then blockers
+						if( (x + clearance) >= m_numCellsX ||
+						    (y + yIndex) 	>= m_numCellsY ||
+						   (m_cells[x + clearance, y + yIndex].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
 						{
-
-							blockerFound = true;
-							continue;
+							m_blockers[x][y].blockerCount[clearance]++;
 						}
-						else
-						{
-							m_defaultNodes[x][y].Annotation = i + 1;
-						}
-
 					}
-
-					if((m_cells[x, y].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
-					{
-						m_defaultNodes[x][y].Annotation = 0;
-						m_blockers[x][y].blockerCount[0]++;
-					} 
 				}
+
+				// Re-calculate the annotation for the current cell now that blocker-counts are set.
+				UpdateCellAnnotation(x, y);
+
+				// If the cell itself is blocked, handle that
+				if((m_cells[x, y].m_contentsMask & (1 << (int)GridCellContentsType.Wall)) != 0)
+				{
+					m_defaultNodes[x][y].Annotation = 0;
+					m_blockers[x][y].blockerCount[0]++;
+				} 
 			}
 		}
 
@@ -121,6 +97,11 @@ public partial class LevelGrid
 				if(x < m_numCellsX - 1) m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x+1][y]);
 				if(y > 0) 				m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x][y - 1]);
 				if(y < m_numCellsY - 1) m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x][y + 1]);
+
+				if(x > 0 && y > 0)								m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x-1][y - 1]);
+				if(x < m_numCellsX - 1 && y > 0) 				m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x+1][y - 1]);
+				if(x > 0 && y < m_numCellsY - 1) 					m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x-1][y+1]);
+				if(y < m_numCellsY - 1 && x < m_numCellsX - 1) 	m_defaultNodes[x][y].NodeLinks.Add(m_defaultNodes[x+1][y + 1]);
 			}
 		}
 	}
@@ -137,30 +118,57 @@ public partial class LevelGrid
 		}
 	}
 
+	// This determines a cell's maximum clearance based on the presence of blockers at each clearance tier
+	private void UpdateCellAnnotation(int x, int y)
+	{
+		bool blockerFound = false;
+
+		for(int clearance = 0; clearance < MaxClearance && !blockerFound; clearance++)
+		{
+			if(m_blockers[x][y].blockerCount[clearance] > 0)
+			{
+				blockerFound = true;
+				continue;
+			}
+			else
+			{
+				m_defaultNodes[x][y].Annotation = clearance + 1;
+			}
+		}
+	}
+
 	private void CellBlocked(int x, int y)
 	{
-		const int maxAnnotationSize = 6;
-
 		m_defaultNodes[x][y].Annotation = 0;
+		m_blockers[x][y].blockerCount[0]++;
 
 		// Iterate the rows down and left, correcting their maximum clearance if they included the blocked cell.
-		for(int i = 1; i < maxAnnotationSize; i++)
+		for(int i = 1; i < MaxClearance; i++)
 		{
-			for(int xIndex = 0; xIndex < i + 1; xIndex++)
+			// Check along the clearance row
+			if((y - i) > -1) // Bounds check y
 			{
-				m_blockers[x - xIndex][y - i].blockerCount[i]++;
-				if(m_defaultNodes[x - xIndex][y - i].Annotation > (i + 1))
+				// i +1 to include the shared corner
+				for(int xIndex = 0; xIndex < i + 1 && (x - xIndex) > -1;xIndex++)			
 				{
-					m_defaultNodes[x - xIndex][y - i].Annotation = (i + 1);
+					m_blockers[x - xIndex][y - i].blockerCount[i]++;
+					if(m_defaultNodes[x - xIndex][y - i].Annotation > i)
+					{
+						m_defaultNodes[x - xIndex][y - i].Annotation = (i);
+					}
 				}
 			}
 
-			for(int yIndex = 0; yIndex < i; yIndex++)
+			// Check down the clearance column
+			if((x - i) > -1) // Bounds check x
 			{
-				m_blockers[x - i][y - yIndex].blockerCount[i]++;
-				if(m_defaultNodes[x - i][y - yIndex].Annotation > (i + 1))
+				for(int yIndex = 0; yIndex < i && (y - yIndex) > -1; yIndex++)
 				{
-					m_defaultNodes[x - i][y - yIndex].Annotation = (i + 1);
+					m_blockers[x - i][y - yIndex].blockerCount[i]++;
+					if(m_defaultNodes[x - i][y - yIndex].Annotation > (i ))
+					{
+						m_defaultNodes[x - i][y - yIndex].Annotation = (i );
+					}
 				}
 			}
 		}
@@ -179,63 +187,17 @@ public partial class LevelGrid
 			for(int xIndex = 0; xIndex < i + 1; xIndex++)
 			{
 				m_blockers[x - xIndex][y - i].blockerCount[i]--;
-
-				blockerFound = false;
-				
-				for(int j = 0; j < MaxClearance && !blockerFound; j++)
-				{
-					if(m_blockers[x - xIndex][y - i].blockerCount[j] > 0)
-					{ 
-						blockerFound = true; 
-						continue;
-					}
-					else
-					{
-						m_defaultNodes[x - xIndex][y - i].Annotation = j + 1;
-					}
-					
-				}
-
+				UpdateCellAnnotation(x - xIndex, y - i);
 			}
 			
 			for(int yIndex = 0; yIndex < i; yIndex++)
 			{
 				m_blockers[x - i][y - yIndex].blockerCount[i]--;
-
-				blockerFound = false;
-				
-				for(int j = 0; j < MaxClearance && !blockerFound; j++)
-				{
-					if(m_blockers[x - i][y - yIndex].blockerCount[j] > 0)
-					{ 
-						blockerFound = true; 
-						continue;
-					}
-					else
-					{
-						m_defaultNodes[x - i][y - yIndex].Annotation = j + 1;
-					}
-					
-				}
+				UpdateCellAnnotation(x - i, y - yIndex);
 			}
 		}
 
-		blockerFound = false;
-		
-		for(int j = 0; j < MaxClearance && !blockerFound; j++)
-		{
-			if(m_blockers[x][y].blockerCount[j] > 0)
-			{ 
-				blockerFound = true; 
-				continue;
-			}
-			else
-			{
-				m_defaultNodes[x][y].Annotation = j + 1;
-			}
-			
-		}
-
+		UpdateCellAnnotation(x, y);
 	}
 
 	public Route GetRoute(Vector2 origin, Vector2 target, int clearance)
@@ -289,7 +251,6 @@ public partial class LevelGrid
 				               (Vector3)(route.m_routePoints[i + 1].NodePosition + route.OffsetVector ) + new Vector3(0.0f, 0.0f, -1.0f), 
 				               Color.magenta );
 			}
-
 		}
 	}
 }

@@ -19,6 +19,7 @@ public class Level : MonoBehaviour
 	const float m_cellSize 				= 0.2f;
 
 	private LevelGridRaycastHit m_raycastHit;
+	private LevelComponent[] m_components;
 
 	public static Level Instance { get { return s_instance; } }
 
@@ -64,6 +65,13 @@ public class Level : MonoBehaviour
 		Vector3 position = transform.position;
 		position.z = 1;
 		transform.position = position;
+
+		m_components = GameObject.FindObjectsOfType<LevelComponent>();
+
+		foreach(var component in m_components)
+		{
+			component.LevelStarted();
+		}
 	}
 
 	public void UpdateDebugMeshes()

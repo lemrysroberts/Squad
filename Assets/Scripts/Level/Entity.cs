@@ -6,7 +6,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(EntityHealth))]
-public class Entity : Spawnable , ISelectable
+public abstract class Entity : Spawnable , ISelectable
 {
 	protected enum EntityState
 	{
